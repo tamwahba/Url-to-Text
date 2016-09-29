@@ -1,0 +1,6 @@
+framework module Pods_Url_to_Text {
+  umbrella header "Pods-Url to Text-umbrella.h"
+
+  export *
+  module * { export * }
+}

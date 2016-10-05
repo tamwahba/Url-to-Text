@@ -6,6 +6,7 @@ target 'Url to Text' do
   use_frameworks!
 
   # Pods for Url to Text
+  pod 'CameraManager', '~> 3.0'
 
   target 'Url to TextTests' do
     inherit! :search_paths

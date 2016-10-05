@@ -1,26 +1,65 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11134" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="hFk-Qx-OFg">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11106"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
-        <scene sceneID="tne-QT-ifu">
+        <scene sceneID="ryf-RL-uEM">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="hFk-Qx-OFg" customClass="ViewController" customModule="Url_to_Text" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
-                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                        <viewControllerLayoutGuide type="top" id="BzF-Wf-SV4"/>
+                        <viewControllerLayoutGuide type="bottom" id="Tv8-Cm-0iL"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                    <view key="view" contentMode="scaleToFill" id="zmi-r3-Fi7">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZpK-Eb-thJ">
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="mUM-a0-eHe">
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="history_cell" selectionStyle="default" indentationWidth="10" reuseIdentifier="history_cell" id="FTP-Ch-5fR">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="FTP-Ch-5fR" id="xtr-OG-zJm">
+                                            <frame key="frameInset" width="375" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="hFk-Qx-OFg" id="2cz-xC-c6p"/>
+                                    <outlet property="delegate" destination="hFk-Qx-OFg" id="P8t-gj-PCJ"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="ZpK-Eb-thJ" firstAttribute="height" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="3KO-A7-owI"/>
+                            <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="mUM-a0-eHe" secondAttribute="bottom" id="8eU-JX-Gp8"/>
+                            <constraint firstItem="mUM-a0-eHe" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="BND-zj-Vdq"/>
+                            <constraint firstItem="mUM-a0-eHe" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="DFO-0D-gGa"/>
+                            <constraint firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="GPj-Bg-I39"/>
+                            <constraint firstItem="ZpK-Eb-thJ" firstAttribute="top" secondItem="zmi-r3-Fi7" secondAttribute="top" id="Gpu-hn-5D7"/>
+                            <constraint firstItem="ZpK-Eb-thJ" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="Pdy-rS-ZAT"/>
+                            <constraint firstItem="mUM-a0-eHe" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="jN1-52-agE"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="historyView" destination="mUM-a0-eHe" id="TYl-hX-0LN"/>
+                        <outlet property="previewView" destination="ZpK-Eb-thJ" id="IdC-sh-cEl"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="rlr-Xp-Ckb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="36" y="115.59220389805098"/>
         </scene>
     </scenes>
 </document>

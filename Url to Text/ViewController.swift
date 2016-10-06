@@ -23,16 +23,14 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        errorView?.alpha = 0
-        verifyCameraAccess()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        DispatchQueue.global(qos: .userInteractive).async {
-            self.captureSession.startRunning()
+        
+        errorView?.isHidden = true
+        DispatchQueue.global().async {
+            self.verifyCameraAccess()
         }
     }
     
@@ -81,22 +79,35 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     func showAccessError(withButton:Bool = true) {
         errorLabel?.text = "The app needs camera access to see URLs!"
-        if withButton {
-            errorButton?.alpha = 1
-        } else {
-            errorButton?.alpha = 0
+        errorButton?.isHidden = !withButton
+
+        errorView?.alpha = 0
+        errorView?.isHidden = false
+        
+        DispatchQueue.main.async {
+            self.view.layoutIfNeeded()
+            UIView.animate(withDuration: 0.45,
+                           animations: {
+                            self.errorView?.alpha = 1
+                            
+            })
         }
-        UIView.animate(withDuration: 0.45, animations: {
-            self.errorView?.alpha = 1
-        })
     }
     
     func showRestrictedError() {
         errorLabel?.text = "Your access to the camera is restricted"
-        errorButton?.alpha = 0
-        UIView.animate(withDuration: 0.45, animations: {
-            self.errorView?.alpha = 1
-        })
+        errorButton?.isHidden = true
+
+        errorView?.alpha = 0
+        errorView?.isHidden = false
+        
+        DispatchQueue.main.async {
+            self.view.layoutIfNeeded()
+            UIView.animate(withDuration: 0.45,
+                           animations: {
+                            self.errorView?.alpha = 1
+            })
+        }
     }
     
     @IBAction func openSettings() {
@@ -134,12 +145,6 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     }
     
     func initCamera() {
-        if errorView?.alpha == 1 {
-            UIView.animate(withDuration: 0.45, animations: {
-                self.errorView?.alpha = 0
-            })
-        }
-        
         do {
             let camera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
             let input = try AVCaptureDeviceInput(device: camera)
@@ -149,11 +154,31 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
             NSLog("error...")
             return
         }
+
+        self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+        self.previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
         
-        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
+        self.captureSession.startRunning()
         
-        previewView!.layer.addSublayer(previewLayer!)
+        DispatchQueue.main.async {
+            self.previewView!.layer.addSublayer(self.previewLayer!)
+            self.view.setNeedsLayout()
+            
+            if !self.errorView!.isHidden {
+                self.previewView?.alpha = 0
+                
+                self.view.layoutIfNeeded()
+                UIView.animate(withDuration: 0.45,
+                               animations: {
+                                self.errorView?.alpha = 0
+                                self.previewView?.alpha = 1
+                    },
+                               completion: {_ in
+                                self.errorView?.isHidden = true
+                })
+            }
+            
+        }
     }
 
     // Mark -- HistoryTableView

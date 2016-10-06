@@ -11,6 +11,9 @@ import AVFoundation
 
 class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    @IBOutlet var errorView: UIView?
+    @IBOutlet var errorLabel: UILabel?
+    @IBOutlet var errorButton: UIButton?
     @IBOutlet var previewView: UIView?
     @IBOutlet var historyView: UITableView?
     
@@ -21,28 +24,20 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        do {
-            let camera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
-            let input = try AVCaptureDeviceInput(device: camera)
-
-            captureSession.addInput(input)
-        } catch {
-            NSLog("error...")
-            return
-        }
-        
-        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
-        
-        previewView!.layer.addSublayer(previewLayer!)
+        errorView?.alpha = 0
+        verifyCameraAccess()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         DispatchQueue.global(qos: .userInteractive).async {
             self.captureSession.startRunning()
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -74,12 +69,91 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
             break
         }
         
-        previewLayer!.frame = previewView!.bounds
+        if previewLayer != nil {
+            previewLayer!.frame = previewView!.bounds
+        }
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func showAccessError(withButton:Bool = true) {
+        errorLabel?.text = "The app needs camera access to see URLs!"
+        if withButton {
+            errorButton?.alpha = 1
+        } else {
+            errorButton?.alpha = 0
+        }
+        UIView.animate(withDuration: 0.45, animations: {
+            self.errorView?.alpha = 1
+        })
+    }
+    
+    func showRestrictedError() {
+        errorLabel?.text = "Your access to the camera is restricted"
+        errorButton?.alpha = 0
+        UIView.animate(withDuration: 0.45, animations: {
+            self.errorView?.alpha = 1
+        })
+    }
+    
+    @IBAction func openSettings() {
+        guard let settingsURL = URL(string: UIApplicationOpenSettingsURLString) else {
+            return
+        }
+        if UIApplication.shared.canOpenURL(settingsURL) {
+            UIApplication.shared.open(settingsURL)
+        }
+    }
+    
+    // Mark -- Camera
+    
+    func verifyCameraAccess() {
+        switch AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) {
+        case .notDetermined:
+            showAccessError(withButton: false)
+            AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo,
+                                          completionHandler: {_ in
+                                            self.verifyCameraAccess()
+            })
+            break
+        case .denied:
+            showAccessError()
+            break
+        case .restricted:
+            showRestrictedError()
+            break
+        case .authorized:
+            fallthrough
+        default:
+            initCamera()
+            break
+        }
+    }
+    
+    func initCamera() {
+        if errorView?.alpha == 1 {
+            UIView.animate(withDuration: 0.45, animations: {
+                self.errorView?.alpha = 0
+            })
+        }
+        
+        do {
+            let camera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
+            let input = try AVCaptureDeviceInput(device: camera)
+            
+            captureSession.addInput(input)
+        } catch {
+            NSLog("error...")
+            return
+        }
+        
+        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
+        
+        previewView!.layer.addSublayer(previewLayer!)
     }
 
     // Mark -- HistoryTableView
@@ -98,7 +172,5 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         return tableView.dequeueReusableCell(withIdentifier: "history_cell")!
     }
-    
-
 }
 

@@ -40,13 +40,17 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        captureSession.startRunning()
+        DispatchQueue.global(qos: .userInteractive).async {
+            self.captureSession.startRunning()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        captureSession.stopRunning()
+        DispatchQueue.global().async {
+            self.captureSession.stopRunning()
+        }
     }
     
     override func viewDidLayoutSubviews() {

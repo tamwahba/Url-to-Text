@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 
-class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource, AVCapturePhotoCaptureDelegate {
     
     @IBOutlet var errorView: UIView?
     @IBOutlet var errorLabel: UILabel?
@@ -17,7 +17,9 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     @IBOutlet var previewView: UIView?
     @IBOutlet var historyView: UITableView?
     
-    var captureSession = AVCaptureSession()
+    let captureSession = AVCaptureSession()
+    let photoOutput = AVCapturePhotoOutput()
+    
     var previewLayer: AVCaptureVideoPreviewLayer?
 
     override func viewDidLoad() {
@@ -149,16 +151,19 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
             let camera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
             let input = try AVCaptureDeviceInput(device: camera)
             
+            camera?.addObserver(self, forKeyPath: "adjustingFocus", options: .new, context: nil)
+            
             captureSession.addInput(input)
+            captureSession.addOutput(photoOutput)
         } catch {
             NSLog("error...")
             return
         }
 
-        self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-        self.previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
+        previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+        previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
         
-        self.captureSession.startRunning()
+        captureSession.startRunning()
         
         DispatchQueue.main.async {
             self.previewView!.layer.addSublayer(self.previewLayer!)
@@ -179,6 +184,23 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
             }
             
         }
+    }
+    
+    // Mark -- Analize on refocus
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "adjustingFocus" {
+            let isAdjustingFocus:Bool = change![.newKey] as! Int == 1
+            if !isAdjustingFocus {
+                photoOutput.capturePhoto(
+                    with: AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecJPEG]),
+                    delegate: self)
+            }
+        }
+    }
+    
+    // Mark -- AVCapturePhotoCaptureDelegate
+    func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
+        print("captured....")
     }
 
     // Mark -- HistoryTableView

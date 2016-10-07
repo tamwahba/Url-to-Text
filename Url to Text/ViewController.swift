@@ -9,6 +9,8 @@
 import UIKit
 import AVFoundation
 
+import TesseractOCR
+
 class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource, AVCapturePhotoCaptureDelegate {
     
     @IBOutlet var errorView: UIView?
@@ -19,6 +21,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     let captureSession = AVCaptureSession()
     let photoOutput = AVCapturePhotoOutput()
+    let tesseract = G8Tesseract(language: "eng")
     
     var previewLayer: AVCaptureVideoPreviewLayer?
 
@@ -153,8 +156,12 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
             
             camera?.addObserver(self, forKeyPath: "adjustingFocus", options: .new, context: nil)
             
+            captureSession.beginConfiguration()
+
             captureSession.addInput(input)
             captureSession.addOutput(photoOutput)
+            
+            captureSession.commitConfiguration()
         } catch {
             NSLog("error...")
             return
@@ -191,8 +198,10 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         if keyPath == "adjustingFocus" {
             let isAdjustingFocus:Bool = change![.newKey] as! Int == 1
             if !isAdjustingFocus {
+                let availableFormats = photoOutput.availablePhotoPixelFormatTypes
+
                 photoOutput.capturePhoto(
-                    with: AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecJPEG]),
+                    with: AVCapturePhotoSettings(format: [kCVPixelBufferPixelFormatTypeKey as String : availableFormats[availableFormats.count-1]]),
                     delegate: self)
             }
         }
@@ -201,6 +210,16 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     // Mark -- AVCapturePhotoCaptureDelegate
     func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         print("captured....")
+
+        if photoSampleBuffer != nil {
+            let image = photoSampleBuffer?.imageRepresentation()
+            tesseract?.image = image
+            tesseract?.recognize()
+            
+            print(tesseract?.recognizedText)
+            
+            UIImageWriteToSavedPhotosAlbum(image!, nil, nil, nil)
+        }
     }
 
     // Mark -- HistoryTableView
@@ -218,6 +237,30 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         return tableView.dequeueReusableCell(withIdentifier: "history_cell")!
+    }
+}
+
+extension CMSampleBuffer {
+    func imageRepresentation() -> UIImage {
+        let imageBuffer = CMSampleBufferGetImageBuffer(self)!
+        
+        CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)))
+        let address = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0)
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer)
+        let width = CVPixelBufferGetWidth(imageBuffer)
+        let height = CVPixelBufferGetHeight(imageBuffer)
+        
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        
+        let bitmapInfo = CGBitmapInfo(rawValue: (CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue) as UInt32)
+        
+        let context = CGContext(data: address, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo.rawValue)!
+        let imageRef = context.makeImage()!
+        
+        CVPixelBufferUnlockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)))
+        let resultImage = UIImage(cgImage: imageRef)
+        
+        return resultImage
     }
 }
 

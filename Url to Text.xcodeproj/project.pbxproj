@@ -41,6 +41,7 @@
 		080CED95C55121AE8788C3BA /* Pods_Url_to_Text.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Url_to_Text.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		13A9EBCBEF90CB14D09C119D /* Pods-Url to Text.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to Text.release.xcconfig"; path = "Pods/Target Support Files/Pods-Url to Text/Pods-Url to Text.release.xcconfig"; sourceTree = "<group>"; };
 		2054BA11E0C2B38DDBE4059A /* Pods-Url to TextTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to TextTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Url to TextTests/Pods-Url to TextTests.release.xcconfig"; sourceTree = "<group>"; };
+		3017C5401DA74CB500F605CA /* TesseractOCR.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TesseractOCR.framework; path = "Pods/../build/Debug-iphoneos/TesseractOCRiOS/TesseractOCR.framework"; sourceTree = "<group>"; };
 		305C9BE21D9DA73C00F4C1DF /* Url to Text.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Url to Text.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		305C9BE51D9DA73D00F4C1DF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		305C9BE71D9DA73D00F4C1DF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -161,6 +162,7 @@
 		BBC482B0E9249688846681D0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3017C5401DA74CB500F605CA /* TesseractOCR.framework */,
 				080CED95C55121AE8788C3BA /* Pods_Url_to_Text.framework */,
 				BC5D0842C24CB24ABD4220B4 /* Pods_Url_to_TextTests.framework */,
 				B3E88C4BF017BC3C4ED888A6 /* Pods_Url_to_TextUITests.framework */,
@@ -621,6 +623,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 3QS6Z6TE67;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos/TesseractOCRiOS",
+				);
 				INFOPLIST_FILE = "Url to Text/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tamerwahba.Url-to-Text";
@@ -635,6 +642,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 3QS6Z6TE67;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos/TesseractOCRiOS",
+				);
 				INFOPLIST_FILE = "Url to Text/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tamerwahba.Url-to-Text";

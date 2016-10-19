@@ -23,6 +23,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     let photoOutput = AVCapturePhotoOutput()
     let tesseract = G8Tesseract(language: "eng")
     
+    var isProcessingImage = false
     var previewLayer: AVCaptureVideoPreviewLayer?
 
     override func viewDidLoad() {
@@ -57,18 +58,53 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         switch UIDevice.current.orientation {
         case .portrait:
             previewLayer?.connection.videoOrientation = .portrait
+            for conn in photoOutput.connections {
+                guard let connection = conn as? AVCaptureConnection else {
+                    continue
+                }
+                
+                connection.videoOrientation = .portrait
+            }
             break
         case .landscapeLeft:
             previewLayer?.connection.videoOrientation = .landscapeRight
+            for conn in photoOutput.connections {
+                guard let connection = conn as? AVCaptureConnection else {
+                    continue
+                }
+                
+                connection.videoOrientation = .landscapeRight
+            }
             break
         case .landscapeRight:
             previewLayer?.connection.videoOrientation = .landscapeLeft
+            for conn in photoOutput.connections {
+                guard let connection = conn as? AVCaptureConnection else {
+                    continue
+                }
+                
+                connection.videoOrientation = .landscapeLeft
+            }
             break
         case .portraitUpsideDown:
             previewLayer?.connection.videoOrientation = .portraitUpsideDown
+            for conn in photoOutput.connections {
+                guard let connection = conn as? AVCaptureConnection else {
+                    continue
+                }
+                
+                connection.videoOrientation = .portraitUpsideDown
+            }
             break
         default:
             previewLayer?.connection.videoOrientation = .portrait
+            for conn in photoOutput.connections {
+                guard let connection = conn as? AVCaptureConnection else {
+                    continue
+                }
+                
+                connection.videoOrientation = .portrait
+            }
             break
         }
         
@@ -80,6 +116,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+        print("MEMORY WARNING")
     }
     
     func showAccessError(withButton:Bool = true) {
@@ -158,6 +195,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
             
             captureSession.beginConfiguration()
 
+            captureSession.sessionPreset = AVCaptureSessionPreset640x480
             captureSession.addInput(input)
             captureSession.addOutput(photoOutput)
             
@@ -197,11 +235,12 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "adjustingFocus" {
             let isAdjustingFocus:Bool = change![.newKey] as! Int == 1
-            if !isAdjustingFocus {
+            if !isAdjustingFocus && !isProcessingImage {
                 let availableFormats = photoOutput.availablePhotoPixelFormatTypes
 
                 photoOutput.capturePhoto(
-                    with: AVCapturePhotoSettings(format: [kCVPixelBufferPixelFormatTypeKey as String : availableFormats[availableFormats.count-1]]),
+                    with: AVCapturePhotoSettings(
+                        format: [kCVPixelBufferPixelFormatTypeKey as String : availableFormats[availableFormats.count-1]]),
                     delegate: self)
             }
         }
@@ -211,15 +250,22 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         print("captured....")
 
+        isProcessingImage = true
+        
         if photoSampleBuffer != nil {
-            let image = photoSampleBuffer?.imageRepresentation()
-            tesseract?.image = image
+            let cropRect = self.previewLayer?.metadataOutputRectOfInterest(for: self.previewLayer!.bounds)
+            let image = photoSampleBuffer?.imageRepresentation(croppedTo: cropRect!)
+
+            tesseract?.engineMode = .tesseractCubeCombined
+            tesseract?.image = image?.g8_blackAndWhite()
             tesseract?.recognize()
-            
-            print(tesseract?.recognizedText)
+
+            print(tesseract!.recognizedText)
             
             UIImageWriteToSavedPhotosAlbum(image!, nil, nil, nil)
         }
+        
+        isProcessingImage = false
     }
 
     // Mark -- HistoryTableView
@@ -241,8 +287,12 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
 }
 
 extension CMSampleBuffer {
-    func imageRepresentation() -> UIImage {
+    func imageRepresentation(croppedTo:CGRect) -> UIImage {
         let imageBuffer = CMSampleBufferGetImageBuffer(self)!
+        
+//        let coreImage = CIImage(cvPixelBuffer: imageBuffer)
+//        let croppedImage = coreImage.cropping(to: croppedTo)
+//        let resultImage = UIImage(ciImage: croppedImage)
         
         CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)))
         let address = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0)
@@ -255,10 +305,42 @@ extension CMSampleBuffer {
         let bitmapInfo = CGBitmapInfo(rawValue: (CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue) as UInt32)
         
         let context = CGContext(data: address, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo.rawValue)!
-        let imageRef = context.makeImage()!
+        let fullRef = context.makeImage()!
+        
+        let originalSize : CGSize
+        let orientation: UIImageOrientation
+        let metaRect = croppedTo
+        
+        switch UIDevice.current.orientation {
+        case .landscapeRight:
+            orientation = .right
+            originalSize = CGSize(width: height, height: width)
+            break
+        case .landscapeLeft:
+            orientation = .left
+            originalSize = CGSize(width: height, height: width)
+            break
+        case .portraitUpsideDown:
+            orientation = .down
+            originalSize = CGSize(width: width, height: height)
+            break
+        case .portrait:
+            fallthrough
+       default:
+            orientation = .right
+            originalSize = CGSize(width: width, height: height)
+        }
+
+        
+        let cropRect = CGRect(x: metaRect.origin.x * originalSize.width,
+                              y: metaRect.origin.y * originalSize.height,
+                              width: metaRect.size.width * originalSize.width,
+                              height: metaRect.size.height * originalSize.height)
+        
+        let imageRef = fullRef.cropping(to: cropRect)!
         
         CVPixelBufferUnlockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)))
-        let resultImage = UIImage(cgImage: imageRef)
+        let resultImage = UIImage(cgImage: imageRef, scale: 1, orientation: orientation)
         
         return resultImage
     }

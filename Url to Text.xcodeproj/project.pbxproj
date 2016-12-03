@@ -17,6 +17,7 @@
 		305C9BF31D9DA73D00F4C1DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 305C9BF11D9DA73D00F4C1DF /* LaunchScreen.storyboard */; };
 		305C9BFE1D9DA73D00F4C1DF /* Url_to_TextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305C9BFD1D9DA73D00F4C1DF /* Url_to_TextTests.swift */; };
 		305C9C091D9DA73D00F4C1DF /* Url_to_TextUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305C9C081D9DA73D00F4C1DF /* Url_to_TextUITests.swift */; };
+		30AEE3EB1DED439600B604AA /* SimpleAdaptiveThresholdFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30AEE3EA1DED439600B604AA /* SimpleAdaptiveThresholdFilter.swift */; };
 		73E63C451C5ADAB56CDEFEF7 /* Pods_Url_to_TextTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC5D0842C24CB24ABD4220B4 /* Pods_Url_to_TextTests.framework */; };
 		A9E3300CC94684DDB8F6CDE7 /* Pods_Url_to_Text.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 080CED95C55121AE8788C3BA /* Pods_Url_to_Text.framework */; };
 		F52200DED2E67107D32C183F /* Pods_Url_to_TextUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3E88C4BF017BC3C4ED888A6 /* Pods_Url_to_TextUITests.framework */; };
@@ -60,6 +61,7 @@
 		305C9C041D9DA73D00F4C1DF /* Url to TextUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Url to TextUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		305C9C081D9DA73D00F4C1DF /* Url_to_TextUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Url_to_TextUITests.swift; sourceTree = "<group>"; };
 		305C9C0A1D9DA73D00F4C1DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		30AEE3EA1DED439600B604AA /* SimpleAdaptiveThresholdFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimpleAdaptiveThresholdFilter.swift; path = Filters/SimpleAdaptiveThresholdFilter.swift; sourceTree = "<group>"; };
 		6D64CE1B5DCB115109A43EAC /* Pods-Url to TextUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to TextUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Url to TextUITests/Pods-Url to TextUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		B3E88C4BF017BC3C4ED888A6 /* Pods_Url_to_TextUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Url_to_TextUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB8C5EA2507A3E2ACB7A6D90 /* Pods-Url to Text.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to Text.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Url to Text/Pods-Url to Text.debug.xcconfig"; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 		305C9BE41D9DA73C00F4C1DF /* Url to Text */ = {
 			isa = PBXGroup;
 			children = (
+				30AEE3EC1DED439F00B604AA /* Filters */,
 				3017C5421DA8537000F605CA /* tessdata */,
 				305C9BE51D9DA73D00F4C1DF /* AppDelegate.swift */,
 				305C9BE71D9DA73D00F4C1DF /* ViewController.swift */,
@@ -163,6 +166,14 @@
 				305C9C0A1D9DA73D00F4C1DF /* Info.plist */,
 			);
 			path = "Url to TextUITests";
+			sourceTree = "<group>";
+		};
+		30AEE3EC1DED439F00B604AA /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+				30AEE3EA1DED439600B604AA /* SimpleAdaptiveThresholdFilter.swift */,
+			);
+			name = Filters;
 			sourceTree = "<group>";
 		};
 		BBC482B0E9249688846681D0 /* Frameworks */ = {
@@ -480,6 +491,7 @@
 				3015C8CA1DC43CEA00DA8A65 /* CaptureSessionManager.swift in Sources */,
 				305C9BEE1D9DA73D00F4C1DF /* Url_to_Text.xcdatamodeld in Sources */,
 				305C9BE61D9DA73D00F4C1DF /* AppDelegate.swift in Sources */,
+				30AEE3EB1DED439600B604AA /* SimpleAdaptiveThresholdFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

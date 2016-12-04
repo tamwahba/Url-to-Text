@@ -156,13 +156,15 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         }
         
 //        glClearColor(0.5, 0.5, 0.5, 1.0)
-//        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
+        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
 //        
 //        glEnable(GLenum(GL_BLEND))
 //        glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
         
         renderContext.draw(outputImage, in: displayViewBounds, from: drawFrame)
         
-        displayView.display()
+        DispatchQueue.main.async {
+            self.displayView.display()
+        }
     }
 }

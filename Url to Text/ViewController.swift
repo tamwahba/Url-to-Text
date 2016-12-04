@@ -9,9 +9,10 @@
 import UIKit
 import AVFoundation
 
+import RealmSwift
 import TesseractOCR
 
-class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource, AVCapturePhotoCaptureDelegate {
+class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource, CaptureSessionManagerDelegate {
     
     @IBOutlet var errorView: UIView?
     @IBOutlet var errorLabel: UILabel?
@@ -19,15 +20,36 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     @IBOutlet var previewView: UIView?
     @IBOutlet var historyView: UITableView?
     
+    @IBOutlet var captureButton: UIButton?
+    @IBOutlet var captureImage: UIImageView?
+    
     let captureSession = AVCaptureSession()
     let photoOutput = AVCapturePhotoOutput()
-    let tesseract = G8Tesseract(language: "eng")
+    let tesseract = G8Tesseract(language: "eng",
+                                configDictionary: nil,
+                                configFileNames: ["\(Bundle.main.resourcePath!)/tessdata/configs/config"],
+                                cachesRelatedDataPath: nil,
+                                engineMode: .tesseractCubeCombined)
     
+    var sessionManager: CaptureSessionManager? = nil
+    
+    var isProcessingImage = false
     var previewLayer: AVCaptureVideoPreviewLayer?
+    
+    let detector = CIDetector(ofType: CIDetectorTypeText,
+                              context: nil,
+                              options: [CIDetectorAccuracy: CIDetectorAccuracyLow,
+                                        CIDetectorReturnSubFeatures: true,
+                                        /*CIDetectorMinFeatureSize: 0.20*/])
+    var textImage: UIImage!
+    
+    var detectorContext: CIContext?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        sessionManager = CaptureSessionManager(in: previewView!, with: self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -45,10 +67,6 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        DispatchQueue.global().async {
-            self.captureSession.stopRunning()
-        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -56,21 +74,18 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         
         switch UIDevice.current.orientation {
         case .portrait:
-            previewLayer?.connection.videoOrientation = .portrait
-            break
+            sessionManager?.orientation = .portrait
         case .landscapeLeft:
-            previewLayer?.connection.videoOrientation = .landscapeRight
-            break
+            sessionManager?.orientation = .landscapeRight
         case .landscapeRight:
-            previewLayer?.connection.videoOrientation = .landscapeLeft
-            break
+            sessionManager?.orientation = .landscapeLeft
         case .portraitUpsideDown:
-            previewLayer?.connection.videoOrientation = .portraitUpsideDown
-            break
+            sessionManager?.orientation = .portraitUpsideDown
         default:
-            previewLayer?.connection.videoOrientation = .portrait
-            break
+            sessionManager?.orientation = .portrait
         }
+        
+        sessionManager?.redraw(in: previewView!)
         
         if previewLayer != nil {
             previewLayer!.frame = previewView!.bounds
@@ -80,6 +95,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+        print("MEMORY WARNING")
     }
     
     func showAccessError(withButton:Bool = true) {
@@ -100,7 +116,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     }
     
     func showRestrictedError() {
-        errorLabel?.text = "Your access to the camera is restricted"
+        errorLabel?.text = "Your access to the camera is restricted."
         errorButton?.isHidden = true
 
         errorView?.alpha = 0
@@ -113,6 +129,15 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
                             self.errorView?.alpha = 1
             })
         }
+    }
+    
+    // TODO -- Remove this
+    @IBAction func capture() {
+        sessionManager?.filter = readText
+    }
+    
+    @IBAction func detect() {
+        sessionManager?.filter = detectText
     }
     
     @IBAction func openSettings() {
@@ -131,49 +156,30 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         case .notDetermined:
             showAccessError(withButton: false)
             AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo,
-                                          completionHandler: {_ in
-                                            self.verifyCameraAccess()
+                                          completionHandler: {
+                                            granted in
+                                            if granted {
+                                                self.initCamera()
+                                            } else {
+                                                self.showAccessError()
+                                            }
             })
-            break
         case .denied:
             showAccessError()
-            break
         case .restricted:
             showRestrictedError()
-            break
         case .authorized:
             fallthrough
         default:
             initCamera()
-            break
         }
     }
     
     func initCamera() {
-        do {
-            let camera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
-            let input = try AVCaptureDeviceInput(device: camera)
-            
-            camera?.addObserver(self, forKeyPath: "adjustingFocus", options: .new, context: nil)
-            
-            captureSession.beginConfiguration()
-
-            captureSession.addInput(input)
-            captureSession.addOutput(photoOutput)
-            
-            captureSession.commitConfiguration()
-        } catch {
-            NSLog("error...")
-            return
-        }
-
-        previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-        previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
         
-        captureSession.startRunning()
+        sessionManager?.startFiltering()
         
         DispatchQueue.main.async {
-            self.previewView!.layer.addSublayer(self.previewLayer!)
             self.view.setNeedsLayout()
             
             if !self.errorView!.isHidden {
@@ -193,33 +199,138 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         }
     }
     
-    // Mark -- Analize on refocus
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "adjustingFocus" {
-            let isAdjustingFocus:Bool = change![.newKey] as! Int == 1
-            if !isAdjustingFocus {
-                let availableFormats = photoOutput.availablePhotoPixelFormatTypes
-
-                photoOutput.capturePhoto(
-                    with: AVCapturePhotoSettings(format: [kCVPixelBufferPixelFormatTypeKey as String : availableFormats[availableFormats.count-1]]),
-                    delegate: self)
-            }
-        }
+    // Mark -- CaptureSessionManagerDelegate
+    func passthrough(_ img: CIImage) -> CIImage {
+        return img
     }
     
-    // Mark -- AVCapturePhotoCaptureDelegate
-    func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
-        print("captured....")
+    func detectText(_ img: CIImage) -> CIImage {
+        var image = img.applyingGaussianBlur(withSigma: 1.5)
 
-        if photoSampleBuffer != nil {
-            let image = photoSampleBuffer?.imageRepresentation()
-            tesseract?.image = image
-            tesseract?.recognize()
+        let features = detector?.features(in: image)
+        for feature in features as! [CITextFeature] {
             
-            print(tesseract?.recognizedText)
+            var overlay = CIImage(color: CIColor(red: 1.0, green: 0, blue: 1.0, alpha: 0.5))
+            overlay = overlay.cropping(to: image.extent)
+            overlay = overlay.applyingFilter("CIPerspectiveTransformWithExtent", withInputParameters: [
+                "inputExtent": CIVector(cgRect: image.extent),
+                "inputTopLeft": CIVector(cgPoint: feature.topLeft),
+                "inputTopRight": CIVector(cgPoint: feature.topRight),
+                "inputBottomLeft": CIVector(cgPoint: feature.bottomLeft),
+                "inputBottomRight": CIVector(cgPoint: feature.bottomRight)
+                ])
+            image = overlay.compositingOverImage(image)
             
-            UIImageWriteToSavedPhotosAlbum(image!, nil, nil, nil)
+            break
         }
+        
+        return image
+    }
+    
+    func readText(_ img: CIImage) -> CIImage {
+        var image = img.applyingGaussianBlur(withSigma: 1.5)
+        
+        let features = detector?.features(in: image)
+        for feature in features as! [CITextFeature] {
+            
+            var overlay = CIImage(color: CIColor(red: 1.0, green: 0, blue: 0, alpha: 0.5))
+            overlay = overlay.cropping(to: image.extent)
+            overlay = overlay.applyingFilter("CIPerspectiveTransformWithExtent", withInputParameters: [
+                "inputExtent": CIVector(cgRect: image.extent),
+                "inputTopLeft": CIVector(cgPoint: feature.topLeft),
+                "inputTopRight": CIVector(cgPoint: feature.topRight),
+                "inputBottomLeft": CIVector(cgPoint: feature.bottomLeft),
+                "inputBottomRight": CIVector(cgPoint: feature.bottomRight)
+                ])
+
+            if detectorContext == nil {
+                detectorContext = CIContext()
+            }
+            
+            var topLeft = feature.topLeft
+            var topRight = feature.topRight
+            var bottomLeft = feature.bottomLeft
+            var bottomRight = feature.bottomRight
+            
+            // adjust region
+            topLeft.x -= 10
+            topLeft.y += 10
+            topRight.x += 10
+            topRight.y += 10
+            bottomLeft.x -= 10
+            bottomLeft.y -= 10
+            bottomRight.x += 10
+            bottomRight.y -= 10
+            
+            let corrected = image.applyingFilter("CIPerspectiveCorrection", withInputParameters: [
+                "inputImage": image,
+                "inputTopLeft": CIVector(cgPoint: topLeft),
+                "inputTopRight": CIVector(cgPoint: topRight),
+                "inputBottomLeft": CIVector(cgPoint: bottomLeft),
+                "inputBottomRight": CIVector(cgPoint: bottomRight)
+                ])
+            
+            textImage = UIImage(cgImage: detectorContext!.createCGImage(corrected, from: corrected.extent)!)
+            
+            image = overlay.compositingOverImage(image)
+
+            break
+        }
+        
+        if textImage != nil {
+            DispatchQueue.main.async {
+                self.captureButton?.isEnabled = false
+            }
+            
+            DispatchQueue.global().async {
+                self.tesseract?.engineMode = .tesseractCubeCombined
+                self.tesseract?.image = self.textImage
+                self.tesseract?.recognize()
+                
+                let text = self.tesseract!.recognizedText.replacingOccurrences(of: "\n", with: "")
+                
+                print("recognized: \(text)")
+                let url = DetectedURL(text)
+                let realm = try! Realm()
+                try! realm.write {
+                    realm.add(url)
+                }
+
+                DispatchQueue.main.async {
+                    self.captureImage?.image = self.textImage
+                    self.historyView?.reloadData()
+                    self.captureButton?.isEnabled = true
+                    self.textImage = nil
+                }
+            }
+
+            sessionManager?.filter = passthrough
+        }
+
+        return image
+    }
+    
+    func filter(for captureSessionManager: CaptureSessionManager) -> ((CIImage) -> CIImage?)? {
+        return passthrough
+    }
+    
+    func orientation(for captureSessionManager: CaptureSessionManager) -> AVCaptureVideoOrientation {
+        var orientation: AVCaptureVideoOrientation = .portrait
+        
+        switch UIDevice.current.orientation {
+        case .portrait:
+            orientation = .portrait
+        case .landscapeLeft:
+            orientation = .landscapeRight
+        case .landscapeRight:
+            orientation = .landscapeLeft
+        case .portraitUpsideDown:
+            orientation = .portraitUpsideDown
+        default:
+            orientation = .portrait
+        }
+        
+        return orientation
     }
 
     // Mark -- HistoryTableView
@@ -228,7 +339,8 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        let realm = try! Realm()
+        return realm.objects(DetectedURL.self).count
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -236,31 +348,10 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return tableView.dequeueReusableCell(withIdentifier: "history_cell")!
-    }
-}
-
-extension CMSampleBuffer {
-    func imageRepresentation() -> UIImage {
-        let imageBuffer = CMSampleBufferGetImageBuffer(self)!
-        
-        CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)))
-        let address = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0)
-        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer)
-        let width = CVPixelBufferGetWidth(imageBuffer)
-        let height = CVPixelBufferGetHeight(imageBuffer)
-        
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        
-        let bitmapInfo = CGBitmapInfo(rawValue: (CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue) as UInt32)
-        
-        let context = CGContext(data: address, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo.rawValue)!
-        let imageRef = context.makeImage()!
-        
-        CVPixelBufferUnlockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)))
-        let resultImage = UIImage(cgImage: imageRef)
-        
-        return resultImage
+        let cell = tableView.dequeueReusableCell(withIdentifier: "history_cell")!
+        let realm = try! Realm()
+        cell.textLabel?.text = realm.objects(DetectedURL.self)[indexPath.row].userEdits.last?.value
+        return cell
     }
 }
 

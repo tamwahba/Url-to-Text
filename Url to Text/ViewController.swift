@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 
+import RealmSwift
 import TesseractOCR
 
 class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource, CaptureSessionManagerDelegate {
@@ -41,7 +42,6 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
                                         CIDetectorReturnSubFeatures: true,
                                         /*CIDetectorMinFeatureSize: 0.20*/])
     var textImage: UIImage!
-    var tableData: [String] = []
     
     var detectorContext: CIContext?
 
@@ -287,9 +287,15 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
                 self.tesseract?.image = self.textImage
                 self.tesseract?.recognize()
                 
-                print("recognized: \(self.tesseract!.recognizedText)")
-                self.tableData.append(self.tesseract!.recognizedText.replacingOccurrences(of: "\n", with: ""))
+                let text = self.tesseract!.recognizedText.replacingOccurrences(of: "\n", with: "")
                 
+                print("recognized: \(text)")
+                let url = DetectedURL(text)
+                let realm = try! Realm()
+                try! realm.write {
+                    realm.add(url)
+                }
+
                 DispatchQueue.main.async {
                     self.captureImage?.image = self.textImage
                     self.historyView?.reloadData()
@@ -333,7 +339,8 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tableData.count
+        let realm = try! Realm()
+        return realm.objects(DetectedURL.self).count
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -342,7 +349,8 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "history_cell")!
-        cell.textLabel?.text = tableData[indexPath.row]
+        let realm = try! Realm()
+        cell.textLabel?.text = realm.objects(DetectedURL.self)[indexPath.row].userEdits.last?.value
         return cell
     }
 }

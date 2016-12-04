@@ -7,6 +7,7 @@ target 'Url to Text' do
 
   # Pods for Url to Text
   pod 'TesseractOCRiOS', '4.0.0'
+  pod 'RealmSwift', '2.1.1'
 
   target 'Url to TextTests' do
     inherit! :search_paths

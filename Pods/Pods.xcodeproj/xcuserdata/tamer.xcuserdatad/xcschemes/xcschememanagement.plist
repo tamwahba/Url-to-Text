@@ -19,6 +19,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Realm.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>RealmSwift.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>TesseractOCRiOS.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -27,7 +37,22 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>881F8BDEF0CCD87D9534EBC3EDECABC5</key>
+		<key>454482BA3F62840B21DE241724549DFE</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>4612ECC81AF89D2F07511C98AD5DCCBF</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5BA8966596327BBD41F35F1870A758FC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9C880367D4675485C0D0A3EB981C4AE5</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -38,11 +63,6 @@
 			<true/>
 		</dict>
 		<key>C586D49359D9A86DF6046D32D0BFF23E</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>E67459836D8A5954C2F192A0784EED96</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -41,6 +41,7 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         orientation = .portrait
         
         displayView = GLKView(frame: superview.bounds, context: EAGLContext(api: .openGLES2))
+        displayView.enableSetNeedsDisplay = false
         displayView.frame = superview.bounds
         superview.addSubview(displayView)
         superview.sendSubview(toBack: displayView)
@@ -66,6 +67,7 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         displayView.removeFromSuperview()
         
         displayView = GLKView(frame: superview.bounds, context: EAGLContext(api: .openGLES2))
+        displayView.enableSetNeedsDisplay = false
         displayView.frame = superview.bounds
         superview.addSubview(displayView)
         superview.sendSubview(toBack: displayView)
@@ -150,20 +152,20 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
 
         drawFrame = outputImage.extent
         
-        displayView.bindDrawable()
-        if displayView.context != EAGLContext.current() {
-            EAGLContext.setCurrent(displayView.context)
-        }
-        
-//        glClearColor(0.5, 0.5, 0.5, 1.0)
-        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
-//        
-//        glEnable(GLenum(GL_BLEND))
-//        glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
-        
-        renderContext.draw(outputImage, in: displayViewBounds, from: drawFrame)
-        
         DispatchQueue.main.async {
+            self.displayView.bindDrawable()
+            if self.displayView.context != EAGLContext.current() {
+                EAGLContext.setCurrent(self.displayView.context)
+            }
+            
+//            glClearColor(0.5, 0.5, 0.5, 1.0)
+            glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
+            
+//            glEnable(GLenum(GL_BLEND))
+//            glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
+            
+            self.renderContext.draw(outputImage, in: self.displayViewBounds, from: drawFrame)
+        
             self.displayView.display()
         }
     }

@@ -7,7 +7,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -25,20 +25,23 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZpK-Eb-thJ">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="133.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="94"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" secondItem="ZpK-Eb-thJ" secondAttribute="width" multiplier="0.25" priority="999" id="Iae-Dd-UFK"/>
+                                </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nQz-gW-h1y">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="133.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="94"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The app needs camera access to see URLs!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Tl-pw-0ZT">
-                                        <rect key="frame" x="46.5" y="44.5" width="282.5" height="17"/>
+                                        <rect key="frame" x="46.5" y="25" width="283" height="17"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YDo-nn-fAy">
-                                        <rect key="frame" x="138.5" y="71.5" width="98" height="30"/>
+                                        <rect key="frame" x="138.5" y="52" width="98" height="30"/>
                                         <state key="normal" title="Open Settings"/>
                                         <connections>
                                             <action selector="openSettings" destination="hFk-Qx-OFg" eventType="touchUpInside" id="47U-kX-0iL"/>
@@ -54,7 +57,7 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="mUM-a0-eHe">
-                                <rect key="frame" x="0.0" y="133" width="375" height="533.5"/>
+                                <rect key="frame" x="0.0" y="94" width="375" height="573"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="history_cell" selectionStyle="default" indentationWidth="10" reuseIdentifier="history_cell" id="FTP-Ch-5fR" customClass="HistoryTableViewCell" customModule="Url_to_Text" customModuleProvider="target">
@@ -92,13 +95,13 @@
                                 </connections>
                             </tableView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fLT-Js-ioH">
-                                <rect key="frame" x="-0.5" y="533.5" width="375" height="133.5"/>
+                                <rect key="frame" x="0.0" y="533.5" width="375" height="133.5"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YDt-FL-iPm">
-                                <rect key="frame" x="-0.5" y="647" width="375" height="20"/>
+                                <rect key="frame" x="0.0" y="647" width="375" height="20"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap and hold to detect text, release to read" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nt1-Sz-qzz">
-                                        <rect key="frame" x="57.5" y="2.5" width="261" height="16"/>
+                                        <rect key="frame" x="57.5" y="2" width="261" height="16"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -110,9 +113,9 @@
                                     <constraint firstItem="Nt1-Sz-qzz" firstAttribute="centerY" secondItem="YDt-FL-iPm" secondAttribute="centerY" id="dRj-XF-r2r"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zUS-gd-bX5">
-                                <rect key="frame" x="284" y="617" width="55" height="30"/>
-                                <state key="normal" title="Capture"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zUS-gd-bX5">
+                                <rect key="frame" x="280" y="572" width="75" height="75"/>
+                                <state key="normal" image="capture_button"/>
                                 <connections>
                                     <action selector="capture" destination="hFk-Qx-OFg" eventType="touchUpInside" id="1zt-cj-kmP"/>
                                     <action selector="capture" destination="hFk-Qx-OFg" eventType="touchUpOutside" id="zqw-jz-OHr"/>
@@ -122,14 +125,12 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="ZpK-Eb-thJ" firstAttribute="height" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="3KO-A7-owI"/>
                             <constraint firstItem="YDt-FL-iPm" firstAttribute="top" secondItem="zUS-gd-bX5" secondAttribute="bottom" id="63F-lJ-saU"/>
                             <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="mUM-a0-eHe" secondAttribute="bottom" id="8eU-JX-Gp8"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="AJf-2R-OCo"/>
                             <constraint firstItem="mUM-a0-eHe" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="BND-zj-Vdq"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="height" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="CND-6a-MHe"/>
                             <constraint firstItem="YDt-FL-iPm" firstAttribute="centerX" secondItem="zmi-r3-Fi7" secondAttribute="centerX" id="D70-3g-jUD"/>
-                            <constraint firstItem="mUM-a0-eHe" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="DFO-0D-gGa"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="leading" secondItem="ZpK-Eb-thJ" secondAttribute="leading" id="DhR-LX-SzM"/>
                             <constraint firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="GPj-Bg-I39"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="top" secondItem="zmi-r3-Fi7" secondAttribute="top" id="Gpu-hn-5D7"/>
@@ -139,9 +140,11 @@
                             <constraint firstItem="YDt-FL-iPm" firstAttribute="width" secondItem="zmi-r3-Fi7" secondAttribute="width" id="XGS-sx-LRg"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="bottom" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="ZIf-wR-cef"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="centerX" secondItem="zmi-r3-Fi7" secondAttribute="centerX" id="dJi-tA-lqh"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="zUS-gd-bX5" secondAttribute="trailing" constant="20" id="dp9-As-iSe"/>
+                            <constraint firstAttribute="trailing" secondItem="zUS-gd-bX5" secondAttribute="trailing" constant="20" id="dp9-As-iSe"/>
+                            <constraint firstItem="mUM-a0-eHe" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="fav-iL-nA7"/>
                             <constraint firstItem="mUM-a0-eHe" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="jN1-52-agE"/>
                             <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="YDt-FL-iPm" secondAttribute="bottom" id="n0K-Qz-Zg3"/>
+                            <constraint firstItem="ZpK-Eb-thJ" firstAttribute="height" relation="lessThanOrEqual" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="qwE-ZK-C8F"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="width" secondItem="zmi-r3-Fi7" secondAttribute="width" id="sab-DB-IDh"/>
                             <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="fLT-Js-ioH" secondAttribute="bottom" id="uGo-m5-ABh"/>
                         </constraints>
@@ -161,4 +164,7 @@
             <point key="canvasLocation" x="36" y="115.59220389805098"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="capture_button" width="75" height="75"/>
+    </resources>
 </document>

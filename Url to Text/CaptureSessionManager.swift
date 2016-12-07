@@ -87,13 +87,14 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     }
     
     func startFiltering() {
+        guard let session = createCaptureSession() else {
+            return
+        }
+
         filter = delegate.filter(for: self)
         orientation = delegate.orientation(for: self)
         
-        if captureSession == nil {
-            captureSession = createCaptureSession()!
-        }
-
+        captureSession = session
         captureSession?.startRunning()
     }
     

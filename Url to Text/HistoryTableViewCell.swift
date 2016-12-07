@@ -43,7 +43,8 @@ class HistoryTableViewCell: UITableViewCell, UITextFieldDelegate {
         
         if realm.objects(DetectedURL.self)[index!.row].userEdits.last?.value != textField.text {
             try! realm.write {
-                realm.objects(DetectedURL.self)[index!.row].userEdits.append(StringObject(textField.text!))
+                let row = realm.objects(DetectedURL.self).count - index!.row - 1
+                realm.objects(DetectedURL.self)[row].userEdits.append(StringObject(textField.text!))
             }
         }
         

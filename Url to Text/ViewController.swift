@@ -350,7 +350,8 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "history_cell") as! HistoryTableViewCell
         let realm = try! Realm()
-        cell.textField?.text = realm.objects(DetectedURL.self)[indexPath.row].userEdits.last?.value
+        let row = realm.objects(DetectedURL.self).count - indexPath.row - 1
+        cell.textField?.text = realm.objects(DetectedURL.self)[row].userEdits.last?.value
         cell.index = indexPath
         cell.tableView = tableView
         

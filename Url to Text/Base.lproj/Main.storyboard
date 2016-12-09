@@ -31,6 +31,22 @@
                                     <constraint firstAttribute="height" secondItem="ZpK-Eb-thJ" secondAttribute="width" multiplier="0.25" priority="999" id="Iae-Dd-UFK"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EdP-df-VkP">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="94"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Loading Camera..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yUt-RP-ENg">
+                                        <rect key="frame" x="129.5" y="38.5" width="117.5" height="17"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="yUt-RP-ENg" firstAttribute="centerY" secondItem="EdP-df-VkP" secondAttribute="centerY" id="1HX-8f-68n"/>
+                                    <constraint firstItem="yUt-RP-ENg" firstAttribute="centerX" secondItem="EdP-df-VkP" secondAttribute="centerX" id="w5D-qX-Rng"/>
+                                </constraints>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nQz-gW-h1y">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="94"/>
                                 <subviews>
@@ -60,15 +76,15 @@
                                 <rect key="frame" x="0.0" y="94" width="375" height="573"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="history_cell" selectionStyle="default" indentationWidth="10" reuseIdentifier="history_cell" id="FTP-Ch-5fR" customClass="HistoryTableViewCell" customModule="Url_to_Text" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="history_cell" selectionStyle="default" indentationWidth="10" reuseIdentifier="history_cell" rowHeight="60" id="FTP-Ch-5fR" customClass="HistoryTableViewCell" customModule="Url_to_Text" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="FTP-Ch-5fR" id="xtr-OG-zJm">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="59"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Text" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="pKX-65-acJ">
-                                                    <rect key="frame" x="15" y="0.0" width="360" height="43"/>
+                                                    <rect key="frame" x="15" y="0.0" width="360" height="59.5"/>
                                                     <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <textInputTraits key="textInputTraits" returnKeyType="done"/>
@@ -125,9 +141,11 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="EdP-df-VkP" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="top" id="1AA-kV-9Bv"/>
                             <constraint firstItem="YDt-FL-iPm" firstAttribute="top" secondItem="zUS-gd-bX5" secondAttribute="bottom" id="63F-lJ-saU"/>
                             <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="mUM-a0-eHe" secondAttribute="bottom" id="8eU-JX-Gp8"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="AJf-2R-OCo"/>
+                            <constraint firstItem="EdP-df-VkP" firstAttribute="leading" secondItem="ZpK-Eb-thJ" secondAttribute="leading" id="B7H-Sv-ffI"/>
                             <constraint firstItem="mUM-a0-eHe" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="BND-zj-Vdq"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="height" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="CND-6a-MHe"/>
                             <constraint firstItem="YDt-FL-iPm" firstAttribute="centerX" secondItem="zmi-r3-Fi7" secondAttribute="centerX" id="D70-3g-jUD"/>
@@ -142,8 +160,10 @@
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="centerX" secondItem="zmi-r3-Fi7" secondAttribute="centerX" id="dJi-tA-lqh"/>
                             <constraint firstAttribute="trailing" secondItem="zUS-gd-bX5" secondAttribute="trailing" constant="20" id="dp9-As-iSe"/>
                             <constraint firstItem="mUM-a0-eHe" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="fav-iL-nA7"/>
+                            <constraint firstItem="EdP-df-VkP" firstAttribute="bottom" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="hQk-Mo-opH"/>
                             <constraint firstItem="mUM-a0-eHe" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="jN1-52-agE"/>
                             <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="YDt-FL-iPm" secondAttribute="bottom" id="n0K-Qz-Zg3"/>
+                            <constraint firstItem="EdP-df-VkP" firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="oyJ-Vk-ZNS"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="height" relation="lessThanOrEqual" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="qwE-ZK-C8F"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="width" secondItem="zmi-r3-Fi7" secondAttribute="width" id="sab-DB-IDh"/>
                             <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="fLT-Js-ioH" secondAttribute="bottom" id="uGo-m5-ABh"/>

@@ -30,7 +30,7 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     
     private var subjectAreaChangeObserver: NSObjectProtocol?
     
-    let sessionQueue: DispatchQueue
+    let sessionQueue = DispatchQueue(label: "AVSessionQueue")
     
     var filter: ((CIImage) -> CIImage?)?
     var orientation: AVCaptureVideoOrientation!
@@ -43,12 +43,11 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         displayView = GLKView(frame: superview.bounds, context: EAGLContext(api: .openGLES2))
         displayView.enableSetNeedsDisplay = false
         displayView.frame = superview.bounds
-        superview.addSubview(displayView)
-        superview.sendSubview(toBack: displayView)
+        
+        superview.addSubview(self.displayView)
+        superview.sendSubview(toBack: self.displayView)
         
         renderContext = CIContext(eaglContext: displayView.context)
-        
-        sessionQueue = DispatchQueue(label: "AVSessionQueue")
         
         displayView.bindDrawable()
         displayViewBounds = CGRect(x: 0, y: 0, width: displayView.drawableWidth, height: displayView.drawableHeight)
@@ -69,8 +68,9 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         displayView = GLKView(frame: superview.bounds, context: EAGLContext(api: .openGLES2))
         displayView.enableSetNeedsDisplay = false
         displayView.frame = superview.bounds
-        superview.addSubview(displayView)
-        superview.sendSubview(toBack: displayView)
+        
+        superview.addSubview(self.displayView)
+        superview.sendSubview(toBack: self.displayView)
         
         renderContext = CIContext(eaglContext: displayView.context)
 
@@ -87,15 +87,17 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     }
     
     func startFiltering() {
-        guard let session = createCaptureSession() else {
-            return
+        sessionQueue.async {
+            guard let session = self.createCaptureSession() else {
+                return
+            }
+            
+            self.filter = self.delegate.filter(for: self)
+            self.orientation = self.delegate.orientation(for: self)
+            
+            self.captureSession = session
+            self.captureSession?.startRunning()
         }
-
-        filter = delegate.filter(for: self)
-        orientation = delegate.orientation(for: self)
-        
-        captureSession = session
-        captureSession?.startRunning()
     }
     
     func stopFiltering() {
@@ -153,21 +155,19 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
 
         drawFrame = outputImage.extent
         
-        DispatchQueue.main.async {
-            self.displayView.bindDrawable()
-            if self.displayView.context != EAGLContext.current() {
-                EAGLContext.setCurrent(self.displayView.context)
-            }
-            
-//            glClearColor(0.5, 0.5, 0.5, 1.0)
-            glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
-            
-//            glEnable(GLenum(GL_BLEND))
-//            glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
-            
-            self.renderContext.draw(outputImage, in: self.displayViewBounds, from: drawFrame)
-        
-            self.displayView.display()
+        self.displayView.bindDrawable()
+        if self.renderContext != EAGLContext.current() {
+            EAGLContext.setCurrent(self.displayView.context)
         }
+        
+//        glClearColor(0.5, 0.5, 0.5, 1.0)
+        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
+        
+        glEnable(GLenum(GL_BLEND))
+        glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
+        
+        self.renderContext.draw(outputImage, in: self.displayViewBounds, from: drawFrame)
+        
+        self.displayView.display()
     }
 }

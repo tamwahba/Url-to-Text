@@ -19,6 +19,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     @IBOutlet var errorButton: UIButton?
     @IBOutlet var previewView: UIView?
     @IBOutlet var historyView: UITableView?
+    @IBOutlet var tabView: UIView?
     
     @IBOutlet var captureButton: UIButton?
     @IBOutlet var captureImage: UIImageView?
@@ -90,6 +91,8 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         if previewLayer != nil {
             previewLayer!.frame = previewView!.bounds
         }
+        
+        self.historyView?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.tabView!.bounds.height, right: 0)
     }
 
     override func didReceiveMemoryWarning() {
@@ -210,7 +213,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         let features = detector?.features(in: image)
         for feature in features as! [CITextFeature] {
             
-            var overlay = CIImage(color: CIColor(red: 1.0, green: 0, blue: 1.0, alpha: 0.5))
+            var overlay = CIImage(color: CIColor(red: 0.24, green: 0.67, blue: 0.87, alpha: 0.5))
             overlay = overlay.cropping(to: image.extent)
             overlay = overlay.applyingFilter("CIPerspectiveTransformWithExtent", withInputParameters: [
                 "inputExtent": CIVector(cgRect: image.extent),
@@ -233,7 +236,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         let features = detector?.features(in: image)
         for feature in features as! [CITextFeature] {
             
-            var overlay = CIImage(color: CIColor(red: 1.0, green: 0, blue: 0, alpha: 0.5))
+            var overlay = CIImage(color: CIColor(red: 0.24, green: 0.67, blue: 0.87, alpha: 0.5))
             overlay = overlay.cropping(to: image.extent)
             overlay = overlay.applyingFilter("CIPerspectiveTransformWithExtent", withInputParameters: [
                 "inputExtent": CIVector(cgRect: image.extent),

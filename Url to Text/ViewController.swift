@@ -208,7 +208,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     }
     
     func detectText(_ img: CIImage) -> CIImage {
-        var image = img.applyingGaussianBlur(withSigma: 1.5)
+        var image = img.applyingGaussianBlur(withSigma: 1.2)
 
         let features = detector?.features(in: image)
         for feature in features as! [CITextFeature] {
@@ -231,7 +231,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     }
     
     func readText(_ img: CIImage) -> CIImage {
-        var image = img.applyingGaussianBlur(withSigma: 1.5)
+        var image = img.applyingGaussianBlur(withSigma: 1.2)
         
         let features = detector?.features(in: image)
         for feature in features as! [CITextFeature] {

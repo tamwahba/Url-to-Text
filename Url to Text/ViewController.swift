@@ -19,10 +19,15 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     @IBOutlet var errorButton: UIButton?
     @IBOutlet var previewView: UIView?
     @IBOutlet var historyView: UITableView?
-    @IBOutlet var tabView: UIView?
+    @IBOutlet var toolBar: UIToolbar?
+    @IBOutlet var leftBarItem: UIBarButtonItem?
+    @IBOutlet var statusLabel: UILabel?
+    @IBOutlet var rightBarItem: UIBarButtonItem?
     
     @IBOutlet var captureButton: UIButton?
     @IBOutlet var captureImage: UIImageView?
+    
+    var selectedIndex: IndexPath?
     
     let captureSession = AVCaptureSession()
     let photoOutput = AVCapturePhotoOutput()
@@ -45,16 +50,38 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     var textImage: UIImage!
     
     var detectorContext: CIContext?
+    
+    let realm = try! Realm()
+    let history = try! Realm().objects(DetectedURL.self).sorted(byProperty: "date", ascending: false)
+    var notificationToken: NotificationToken?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        notificationToken = history.addNotificationBlock({ (changes: RealmCollectionChange) in
+            switch changes {
+            case .initial:
+                self.historyView?.reloadData()
+            case .update(_, let deletions, let insertions, let modifications):
+                self.historyView?.beginUpdates()
+                self.historyView?.insertRows(at: insertions.map { IndexPath(row: $0, section: 0) }, with: .automatic)
+                self.historyView?.deleteRows(at: deletions.map { IndexPath(row: $0, section: 0) }, with: .automatic)
+                self.historyView?.reloadRows(at: modifications.map { IndexPath(row: $0, section: 0) }, with: .automatic)
+                self.historyView?.endUpdates()
+            case .error(let err):
+                fatalError("\(err)")
+            }
+        })
         
         sessionManager = CaptureSessionManager(in: previewView!, with: self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        self.historyView?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
+        self.historyView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
         
         errorView?.isHidden = true
         DispatchQueue.global().async {
@@ -73,26 +100,32 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        var newOrientaion: AVCaptureVideoOrientation = .portrait
+        
         switch UIDevice.current.orientation {
         case .portrait:
-            sessionManager?.orientation = .portrait
+            newOrientaion = .portrait
         case .landscapeLeft:
-            sessionManager?.orientation = .landscapeRight
+            newOrientaion = .landscapeRight
         case .landscapeRight:
-            sessionManager?.orientation = .landscapeLeft
+            newOrientaion = .landscapeLeft
         case .portraitUpsideDown:
-            sessionManager?.orientation = .portraitUpsideDown
+            newOrientaion = .portraitUpsideDown
         default:
-            sessionManager?.orientation = .portrait
+            newOrientaion = .portrait
         }
         
-        sessionManager?.redraw(in: previewView!)
-        
-        if previewLayer != nil {
-            previewLayer!.frame = previewView!.bounds
+        if newOrientaion != sessionManager?.orientation {
+            sessionManager?.orientation = newOrientaion
+            sessionManager?.redraw(in: previewView!)
+            
+            if previewLayer != nil {
+                previewLayer!.frame = previewView!.bounds
+            }
+            
+            self.historyView?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
+            self.historyView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
         }
-        
-        self.historyView?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.tabView!.bounds.height, right: 0)
     }
 
     override func didReceiveMemoryWarning() {
@@ -136,11 +169,28 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     // TODO -- Remove this
     @IBAction func capture() {
+        showMessage("Reading text...")
         sessionManager?.filter = readText
     }
     
     @IBAction func detect() {
+        showMessage("Detecting text, release to read")
         sessionManager?.filter = detectText
+    }
+    
+    func showMessage(_ message: String) {
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.4,
+                           animations: {
+                            self.statusLabel?.alpha = 0
+            },
+                           completion: {_ in
+                            self.statusLabel?.text = message
+                            UIView.animate(withDuration: 0.2, animations: {
+                                self.statusLabel?.alpha = 1
+                            })
+            })
+        }
     }
     
     @IBAction func openSettings() {
@@ -203,6 +253,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     }
     
     // Mark -- CaptureSessionManagerDelegate
+    
     func passthrough(_ img: CIImage) -> CIImage {
         return img
     }
@@ -301,10 +352,11 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
 
                 DispatchQueue.main.async {
                     self.captureImage?.image = self.textImage
-                    self.historyView?.reloadData()
                     self.captureButton?.isEnabled = true
                     self.textImage = nil
                 }
+                
+                self.showMessage("Detected: \(text)")
             }
 
             sessionManager?.filter = passthrough
@@ -341,9 +393,9 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let realm = try! Realm()
-        return realm.objects(DetectedURL.self).count
+        return history.count
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -352,14 +404,80 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "history_cell") as! HistoryTableViewCell
-        let realm = try! Realm()
-        let row = realm.objects(DetectedURL.self).count - indexPath.row - 1
-        cell.textField?.text = realm.objects(DetectedURL.self)[row].userEdits.last?.value
+        let row = indexPath.row
+        let obj = history[row]
+
+        cell.textField?.text = obj.userEdits.last?.value
+        cell.dateLabel?.text = DateFormatter.localizedString(from: obj.date,
+                                                             dateStyle: .medium,
+                                                             timeStyle: .none)
         cell.index = indexPath
         cell.tableView = tableView
         
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selectedIndex = indexPath
+        for cell in tableView.visibleCells.filter({ return ($0 as! HistoryTableViewCell).index != indexPath }) {
+            UIView.animate(withDuration: 0.2, animations: { cell.contentView.alpha = 0.2 })
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        selectedIndex = nil
+        for cell in tableView.visibleCells {
+            UIView.animate(withDuration: 0.2, animations: { cell.contentView.alpha = 1 })
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        
+    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        return [
+            UITableViewRowAction(style: .destructive,
+                                 title: "Delete",
+                                 handler: {action, index in
+                                    let realm = try! Realm()
+                                    let row = index.row
+                                    let obj = realm.objects(DetectedURL.self).sorted(byProperty: "date", ascending: false)[row]
+                                    
+                                    try! realm.write {
+                                        realm.delete(obj)
+                                    }
+            }),
+            UITableViewRowAction(style: .normal,
+                                 title: "Append",
+                                 handler: {action, index in
+                                    print("\(action) pressed on \(index)")
+            }),
+            UITableViewRowAction(style: .normal,
+                                 title: "Prepend",
+                                 handler: {action, index in
+                                    print("\(action) pressed on \(index)")
+            }),
+            UITableViewRowAction(style: .normal,
+                                 title: "\(indexPath.row)",
+                                 handler: {action, index in
+                                    print("\(action) pressed on \(index)")
+            }),
+        ]
+    }
+    
+    // Mark - Helpers
+    
+    @IBAction func testMessage() {
+        if statusLabel?.text != "halo" {
+            showMessage("halo")
+        } else {
+            showMessage("This is fairly long... but not too long though")
+        }
+    }
 }
 

@@ -13,6 +13,7 @@ import RealmSwift
 class HistoryTableViewCell: UITableViewCell, UITextFieldDelegate {
     
     @IBOutlet var textField: UITextField?
+    @IBOutlet var dateLabel: UILabel?
     public var index: IndexPath?
     public var tableView: UITableView?
 
@@ -28,23 +29,21 @@ class HistoryTableViewCell: UITableViewCell, UITextFieldDelegate {
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        if index!.row > 2 {
-            let targetRow = index!.row - 3
-            tableView!.scrollToRow(at: IndexPath(row: targetRow, section: index!.section), at: .top, animated: true)
-        } else {
-            tableView!.scrollToRow(at: index!, at: .none, animated: true)
-        }
+        let scrollPosition: UITableViewScrollPosition = .top
+
+        tableView?.delegate?.tableView!(tableView!, didSelectRowAt: index!)
+        tableView?.selectRow(at: index!, animated: true, scrollPosition: scrollPosition)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         
         let realm = try! Realm()
+        let obj = realm.objects(DetectedURL.self).sorted(byProperty: "date", ascending: false)[index!.row]
         
-        if realm.objects(DetectedURL.self)[index!.row].userEdits.last?.value != textField.text {
+        if obj.userEdits.last?.value != textField.text {
             try! realm.write {
-                let row = realm.objects(DetectedURL.self).count - index!.row - 1
-                realm.objects(DetectedURL.self)[row].userEdits.append(StringObject(textField.text!))
+                obj.userEdits.append(StringObject(textField.text!))
             }
         }
         
@@ -52,7 +51,8 @@ class HistoryTableViewCell: UITableViewCell, UITextFieldDelegate {
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        print("ended")
+        tableView?.delegate?.tableView!(tableView!, didDeselectRowAt: index!)
+        tableView?.deselectRow(at: index!, animated: true)
     }
 
 }

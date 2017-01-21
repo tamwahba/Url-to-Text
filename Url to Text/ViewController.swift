@@ -178,7 +178,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         }
     }
     
-    // Mark -- Camera
+    // Mark: - Camera
     
     func verifyCameraAccess() {
         switch AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) {
@@ -228,7 +228,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         }
     }
     
-    // Mark -- CaptureSessionManagerDelegate
+    // Mark: - CaptureSessionManagerDelegate
     
     func passthrough(_ img: CIImage) -> CIImage {
         return img
@@ -374,7 +374,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         
     }
     
-    // Mark - Helpers
+    // Mark: - Helpers
     
     @IBAction func testMessage() {
         if statusLabel?.text != "halo" {

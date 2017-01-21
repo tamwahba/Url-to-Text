@@ -12,13 +12,12 @@ import AVFoundation
 import RealmSwift
 import TesseractOCR
 
-class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSource, CaptureSessionManagerDelegate {
+class ViewController : UIViewController, CaptureSessionManagerDelegate {
     
     @IBOutlet var errorView: UIView?
     @IBOutlet var errorLabel: UILabel?
     @IBOutlet var errorButton: UIButton?
     @IBOutlet var previewView: UIView?
-    @IBOutlet var historyView: UITableView?
     @IBOutlet var toolBar: UIToolbar?
     @IBOutlet var leftBarItem: UIBarButtonItem?
     @IBOutlet var statusLabel: UILabel?
@@ -26,9 +25,7 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
     
     @IBOutlet var captureButton: UIButton?
     @IBOutlet var captureImage: UIImageView?
-    
-    var selectedIndex: IndexPath?
-    
+        
     let captureSession = AVCaptureSession()
     let photoOutput = AVCapturePhotoOutput()
     let tesseract = G8Tesseract(language: "eng",
@@ -59,29 +56,11 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        notificationToken = history.addNotificationBlock({ (changes: RealmCollectionChange) in
-            switch changes {
-            case .initial:
-                self.historyView?.reloadData()
-            case .update(_, let deletions, let insertions, let modifications):
-                self.historyView?.beginUpdates()
-                self.historyView?.insertRows(at: insertions.map { IndexPath(row: $0, section: 0) }, with: .automatic)
-                self.historyView?.deleteRows(at: deletions.map { IndexPath(row: $0, section: 0) }, with: .automatic)
-                self.historyView?.reloadRows(at: modifications.map { IndexPath(row: $0, section: 0) }, with: .automatic)
-                self.historyView?.endUpdates()
-            case .error(let err):
-                fatalError("\(err)")
-            }
-        })
-        
         sessionManager = CaptureSessionManager(in: previewView!, with: self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        self.historyView?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
-        self.historyView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
         
         errorView?.isHidden = true
         DispatchQueue.global().async {
@@ -122,9 +101,6 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
             if previewLayer != nil {
                 previewLayer!.frame = previewView!.bounds
             }
-            
-            self.historyView?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
-            self.historyView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
         }
     }
 
@@ -387,87 +363,15 @@ class ViewController : UIViewController, UITableViewDelegate, UITableViewDataSou
         
         return orientation
     }
+    
+    // Mark: - Navigation
 
-    // Mark -- HistoryTableView
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return history.count
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "History"
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "history_cell") as! HistoryTableViewCell
-        let row = indexPath.row
-        let obj = history[row]
-
-        cell.textField?.text = obj.userEdits.last?.value
-        cell.dateLabel?.text = DateFormatter.localizedString(from: obj.date,
-                                                             dateStyle: .medium,
-                                                             timeStyle: .none)
-        cell.index = indexPath
-        cell.tableView = tableView
-        
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedIndex = indexPath
-        for cell in tableView.visibleCells.filter({ return ($0 as! HistoryTableViewCell).index != indexPath }) {
-            UIView.animate(withDuration: 0.2, animations: { cell.contentView.alpha = 0.2 })
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let tableViewController = segue.destination as? HistoryTableViewController {
+            tableViewController.tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
+            tableViewController.tableView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: self.toolBar!.bounds.height, right: 0)
         }
-    }
-    
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        selectedIndex = nil
-        for cell in tableView.visibleCells {
-            UIView.animate(withDuration: 0.2, animations: { cell.contentView.alpha = 1 })
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         
-    }
-    
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        return [
-            UITableViewRowAction(style: .destructive,
-                                 title: "Delete",
-                                 handler: {action, index in
-                                    let realm = try! Realm()
-                                    let row = index.row
-                                    let obj = realm.objects(DetectedURL.self).sorted(byProperty: "date", ascending: false)[row]
-                                    
-                                    try! realm.write {
-                                        realm.delete(obj)
-                                    }
-            }),
-            UITableViewRowAction(style: .normal,
-                                 title: "Append",
-                                 handler: {action, index in
-                                    print("\(action) pressed on \(index)")
-            }),
-            UITableViewRowAction(style: .normal,
-                                 title: "Prepend",
-                                 handler: {action, index in
-                                    print("\(action) pressed on \(index)")
-            }),
-            UITableViewRowAction(style: .normal,
-                                 title: "\(indexPath.row)",
-                                 handler: {action, index in
-                                    print("\(action) pressed on \(index)")
-            }),
-        ]
     }
     
     // Mark - Helpers

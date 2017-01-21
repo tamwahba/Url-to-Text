@@ -19,6 +19,7 @@
 		305C9BF31D9DA73D00F4C1DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 305C9BF11D9DA73D00F4C1DF /* LaunchScreen.storyboard */; };
 		305C9BFE1D9DA73D00F4C1DF /* Url_to_TextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305C9BFD1D9DA73D00F4C1DF /* Url_to_TextTests.swift */; };
 		305C9C091D9DA73D00F4C1DF /* Url_to_TextUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305C9C081D9DA73D00F4C1DF /* Url_to_TextUITests.swift */; };
+		3090CA8E1E340D820095F3E3 /* HistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3090CA8D1E340D820095F3E3 /* HistoryTableViewController.swift */; };
 		73E63C451C5ADAB56CDEFEF7 /* Pods_Url_to_TextTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC5D0842C24CB24ABD4220B4 /* Pods_Url_to_TextTests.framework */; };
 		A9E3300CC94684DDB8F6CDE7 /* Pods_Url_to_Text.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 080CED95C55121AE8788C3BA /* Pods_Url_to_Text.framework */; };
 		F52200DED2E67107D32C183F /* Pods_Url_to_TextUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3E88C4BF017BC3C4ED888A6 /* Pods_Url_to_TextUITests.framework */; };
@@ -64,6 +65,7 @@
 		305C9C041D9DA73D00F4C1DF /* Url to TextUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Url to TextUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		305C9C081D9DA73D00F4C1DF /* Url_to_TextUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Url_to_TextUITests.swift; sourceTree = "<group>"; };
 		305C9C0A1D9DA73D00F4C1DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3090CA8D1E340D820095F3E3 /* HistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HistoryTableViewController.swift; sourceTree = "<group>"; };
 		6D64CE1B5DCB115109A43EAC /* Pods-Url to TextUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to TextUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Url to TextUITests/Pods-Url to TextUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		B3E88C4BF017BC3C4ED888A6 /* Pods_Url_to_TextUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Url_to_TextUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB8C5EA2507A3E2ACB7A6D90 /* Pods-Url to Text.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to Text.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Url to Text/Pods-Url to Text.debug.xcconfig"; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				301BE9D81DF3DA97009753A3 /* HistoryTableViewCell.swift */,
 				305C9BE71D9DA73D00F4C1DF /* ViewController.swift */,
 				3015C8C91DC43CEA00DA8A65 /* CaptureSessionManager.swift */,
+				3090CA8D1E340D820095F3E3 /* HistoryTableViewController.swift */,
 				305C9BE91D9DA73D00F4C1DF /* Main.storyboard */,
 				305C9BEF1D9DA73D00F4C1DF /* Assets.xcassets */,
 				305C9BF11D9DA73D00F4C1DF /* LaunchScreen.storyboard */,
@@ -486,6 +489,7 @@
 				301BE9D71DF38063009753A3 /* DetectedURL.swift in Sources */,
 				305C9BE81D9DA73D00F4C1DF /* ViewController.swift in Sources */,
 				3015C8CA1DC43CEA00DA8A65 /* CaptureSessionManager.swift in Sources */,
+				3090CA8E1E340D820095F3E3 /* HistoryTableViewController.swift in Sources */,
 				305C9BEE1D9DA73D00F4C1DF /* Url_to_Text.xcdatamodeld in Sources */,
 				305C9BE61D9DA73D00F4C1DF /* AppDelegate.swift in Sources */,
 			);

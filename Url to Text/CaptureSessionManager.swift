@@ -35,6 +35,8 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     var filter: ((CIImage) -> CIImage?)?
     var orientation: AVCaptureVideoOrientation!
     
+    var outputImage = CIImage()
+    
     init(in superview: UIView, with delegate: CaptureSessionManagerDelegate) {
         self.delegate = delegate
         
@@ -101,7 +103,9 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     }
     
     func stopFiltering() {
-        captureSession?.stopRunning()
+        sessionQueue.sync {
+            self.captureSession?.stopRunning()
+        }
     }
     
     func createCaptureSession() -> AVCaptureSession? {
@@ -146,7 +150,7 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         drawFrame.origin.y = drawFrame.size.height / 2
         drawFrame.size.height = drawFrame.width / viewAR
         
-        var outputImage = sourceImage.cropping(to: drawFrame)
+        outputImage = sourceImage.cropping(to: drawFrame)
         
         let detectionResult = filter?(outputImage)
         if detectionResult != nil {

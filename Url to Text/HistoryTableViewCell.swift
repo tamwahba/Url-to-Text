@@ -31,10 +31,7 @@ class HistoryTableViewCell: UITableViewCell, UITextFieldDelegate {
     // Mark: - UITextFieldDelegate
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        let scrollPosition: UITableViewScrollPosition = .top
-
         tableView?.delegate?.tableView!(tableView!, didSelectRowAt: index!)
-        tableView?.selectRow(at: index!, animated: true, scrollPosition: scrollPosition)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

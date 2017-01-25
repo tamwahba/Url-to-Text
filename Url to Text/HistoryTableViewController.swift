@@ -73,15 +73,19 @@ class HistoryTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        for cell in tableView.visibleCells.filter({ return ($0 as! HistoryTableViewCell).index != indexPath }) {
-            UIView.animate(withDuration: 0.2, animations: { cell.contentView.alpha = 0.2 })
-        }
+        UIView.animate(withDuration: 0.2, animations: {
+            for cell in tableView.visibleCells.filter({ return ($0 as! HistoryTableViewCell).index != indexPath }) {
+                cell.contentView.alpha = 0.2
+            }
+        })
     }
     
     override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        for cell in tableView.visibleCells {
-            UIView.animate(withDuration: 0.2, animations: { cell.contentView.alpha = 1 })
-        }
+        UIView.animate(withDuration: 0.2, animations: {
+            for cell in tableView.visibleCells {
+                cell.contentView.alpha = 1
+            }
+        })
     }
     
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
@@ -106,11 +110,6 @@ class HistoryTableViewController: UITableViewController {
                                  title: "Prepend",
                                  handler: {action, index in
                                     print("\(action) pressed on \(index)")
-            }),
-            UITableViewRowAction(style: .normal,
-                                 title: "\(indexPath.row)",
-                handler: {action, index in
-                    print("\(action) pressed on \(index)")
             }),
         ]
     }

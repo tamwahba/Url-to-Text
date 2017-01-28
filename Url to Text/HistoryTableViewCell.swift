@@ -28,6 +28,10 @@ class HistoryTableViewCell: UITableViewCell, UITextFieldDelegate {
         // Configure the view for the selected state
     }
     
+    override func prepareForReuse() {
+        self.contentView.alpha = 1
+    }
+    
     // Mark: - UITextFieldDelegate
     
     func textFieldDidBeginEditing(_ textField: UITextField) {

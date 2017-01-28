@@ -107,9 +107,13 @@ class HistoryTableViewController: UITableViewController {
                                     print("\(action) pressed on \(index)")
             }),
             UITableViewRowAction(style: .normal,
-                                 title: "Prepend",
+                                 title: "Copy",
                                  handler: {action, index in
-                                    print("\(action) pressed on \(index)")
+                                    self.tableView.isEditing = false
+                                    UIPasteboard.general.string = self.history[index.row].userEdits.last!.value
+                                    if let parent = self.parent as? ViewController {
+                                        parent.showMessage("Copied to clipboard")
+                                    }
             }),
         ]
     }

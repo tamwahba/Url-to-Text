@@ -10,9 +10,14 @@ import AVFoundation
 import GLKit
 import UIKit
 
+enum CaptureSessionManagerFilterMode {
+    case passthrough
+    case detect
+}
+
 protocol CaptureSessionManagerDelegate {
     func orientation(for captureSessionManager: CaptureSessionManager) -> AVCaptureVideoOrientation
-    func filter(for captureSessionManager: CaptureSessionManager) -> ((CIImage) -> CIImage?)?
+    func captureSessionManager(_ captureSessionManager: CaptureSessionManager, didDetectFeature feature:CITextFeature, inImage image: CIImage)
 }
 
 class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -29,10 +34,31 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     private var captureDevice: AVCaptureDevice?
     
     private var subjectAreaChangeObserver: NSObjectProtocol?
+    private var filter: ((CIImage) -> CIImage?)?
+    
+    private var mode: CaptureSessionManagerFilterMode = .passthrough
+    var filterMode: CaptureSessionManagerFilterMode {
+        get {
+            return mode
+        }
+        set {
+            switch newValue {
+            case .detect:
+                filter = detectorFilter
+            case .passthrough:
+                filter = passthroughFilter
+            }
+            mode = newValue
+        }
+    }
     
     let sessionQueue = DispatchQueue(label: "AVSessionQueue")
+    let textDetector = CIDetector(ofType: CIDetectorTypeText,
+                                  context: nil,
+                                  options: [CIDetectorAccuracy: CIDetectorAccuracyLow,
+                                            CIDetectorReturnSubFeatures: true,
+                                            /*CIDetectorMinFeatureSize: 0.20*/])
     
-    var filter: ((CIImage) -> CIImage?)?
     var orientation: AVCaptureVideoOrientation!
     
     var outputImage = CIImage()
@@ -94,7 +120,6 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
                 return
             }
             
-            self.filter = self.delegate.filter(for: self)
             self.orientation = self.delegate.orientation(for: self)
             
             self.captureSession = session
@@ -135,7 +160,36 @@ class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
             return nil
         }
     }
+    
+    func passthroughFilter(_ img: CIImage) -> CIImage {
+        return img
+    }
+    
+    func detectorFilter(_ img: CIImage) -> CIImage {
+        var image = img.applyingGaussianBlur(withSigma: 1.2)
+        
+        let features = textDetector?.features(in: image).sorted(by: { return $0.bounds.size.width > $1.bounds.size.width})
+        for feature in features as! [CITextFeature] {
+            
+            var overlay = CIImage(color: CIColor(red: 0.24, green: 0.67, blue: 0.87, alpha: 0.5))
+            overlay = overlay.cropping(to: image.extent)
+            overlay = overlay.applyingFilter("CIPerspectiveTransformWithExtent", withInputParameters: [
+                "inputExtent": CIVector(cgRect: image.extent),
+                "inputTopLeft": CIVector(cgPoint: feature.topLeft),
+                "inputTopRight": CIVector(cgPoint: feature.topRight),
+                "inputBottomLeft": CIVector(cgPoint: feature.bottomLeft),
+                "inputBottomRight": CIVector(cgPoint: feature.bottomRight)
+                ])
 
+            self.delegate.captureSessionManager(self, didDetectFeature: feature, inImage: image)
+            
+            image = overlay.compositingOverImage(image)
+            
+            break
+        }
+        
+        return image
+    }
     
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!

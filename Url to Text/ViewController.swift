@@ -26,8 +26,6 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     @IBOutlet var captureButton: UIButton?
     @IBOutlet var captureImage: UIImageView?
         
-    let captureSession = AVCaptureSession()
-    let photoOutput = AVCapturePhotoOutput()
     let tesseract = G8Tesseract(language: "eng",
                                 configDictionary: nil,
                                 configFileNames: ["\(Bundle.main.resourcePath!)/tessdata/configs/config"],
@@ -36,18 +34,11 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     
     var sessionManager: CaptureSessionManager? = nil
     
-    var isProcessingImage = false
-    var previewLayer: AVCaptureVideoPreviewLayer?
-    
-    let detector = CIDetector(ofType: CIDetectorTypeText,
-                              context: nil,
-                              options: [CIDetectorAccuracy: CIDetectorAccuracyLow,
-                                        CIDetectorReturnSubFeatures: true,
-                                        /*CIDetectorMinFeatureSize: 0.20*/])
-    var textImage: UIImage!
+    var shouldReadText = false
     
     var detectorContext: CIContext?
-    
+    var textImage: UIImage!
+
     let realm = try! Realm()
     let history = try! Realm().objects(DetectedURL.self).sorted(byProperty: "date", ascending: false)
     var notificationToken: NotificationToken?
@@ -97,10 +88,6 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         if newOrientaion != sessionManager?.orientation {
             sessionManager?.orientation = newOrientaion
             sessionManager?.redraw(in: previewView!)
-            
-            if previewLayer != nil {
-                previewLayer!.frame = previewView!.bounds
-            }
         }
     }
 
@@ -146,12 +133,12 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     // TODO -- Remove this
     @IBAction func capture() {
         showMessage("Reading text...")
-        sessionManager?.filter = readText
+        shouldReadText = true
     }
     
     @IBAction func detect() {
+        sessionManager?.filterMode = .detect
         showMessage("Detecting text, release to read")
-        sessionManager?.filter = detectText
     }
     
     func showMessage(_ message: String) {
@@ -230,82 +217,41 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     
     // Mark: - CaptureSessionManagerDelegate
     
-    func passthrough(_ img: CIImage) -> CIImage {
-        return img
-    }
-    
-    func detectText(_ img: CIImage) -> CIImage {
-        var image = img.applyingGaussianBlur(withSigma: 1.2)
-
-        let features = detector?.features(in: image)
-        for feature in features as! [CITextFeature] {
-            
-            var overlay = CIImage(color: CIColor(red: 0.24, green: 0.67, blue: 0.87, alpha: 0.5))
-            overlay = overlay.cropping(to: image.extent)
-            overlay = overlay.applyingFilter("CIPerspectiveTransformWithExtent", withInputParameters: [
-                "inputExtent": CIVector(cgRect: image.extent),
-                "inputTopLeft": CIVector(cgPoint: feature.topLeft),
-                "inputTopRight": CIVector(cgPoint: feature.topRight),
-                "inputBottomLeft": CIVector(cgPoint: feature.bottomLeft),
-                "inputBottomRight": CIVector(cgPoint: feature.bottomRight)
-                ])
-            image = overlay.compositingOverImage(image)
-            
-            break
+    func captureSessionManager(_ captureSessionManager: CaptureSessionManager, didDetectFeature feature: CITextFeature, inImage image: CIImage) {
+        if !shouldReadText {
+            return
+        }
+        shouldReadText = false
+        captureSessionManager.filterMode = .passthrough
+        
+        if detectorContext == nil {
+            detectorContext = CIContext()
         }
         
-        return image
-    }
-    
-    func readText(_ img: CIImage) -> CIImage {
-        var image = img.applyingGaussianBlur(withSigma: 1.2)
+        var topLeft = feature.topLeft
+        var topRight = feature.topRight
+        var bottomLeft = feature.bottomLeft
+        var bottomRight = feature.bottomRight
         
-        let features = detector?.features(in: image)
-        for feature in features as! [CITextFeature] {
-            
-            var overlay = CIImage(color: CIColor(red: 0.24, green: 0.67, blue: 0.87, alpha: 0.5))
-            overlay = overlay.cropping(to: image.extent)
-            overlay = overlay.applyingFilter("CIPerspectiveTransformWithExtent", withInputParameters: [
-                "inputExtent": CIVector(cgRect: image.extent),
-                "inputTopLeft": CIVector(cgPoint: feature.topLeft),
-                "inputTopRight": CIVector(cgPoint: feature.topRight),
-                "inputBottomLeft": CIVector(cgPoint: feature.bottomLeft),
-                "inputBottomRight": CIVector(cgPoint: feature.bottomRight)
-                ])
-
-            if detectorContext == nil {
-                detectorContext = CIContext()
-            }
-            
-            var topLeft = feature.topLeft
-            var topRight = feature.topRight
-            var bottomLeft = feature.bottomLeft
-            var bottomRight = feature.bottomRight
-            
-            // adjust region
-            topLeft.x -= 10
-            topLeft.y += 10
-            topRight.x += 10
-            topRight.y += 10
-            bottomLeft.x -= 10
-            bottomLeft.y -= 10
-            bottomRight.x += 10
-            bottomRight.y -= 10
-            
-            let corrected = image.applyingFilter("CIPerspectiveCorrection", withInputParameters: [
-                "inputImage": image,
-                "inputTopLeft": CIVector(cgPoint: topLeft),
-                "inputTopRight": CIVector(cgPoint: topRight),
-                "inputBottomLeft": CIVector(cgPoint: bottomLeft),
-                "inputBottomRight": CIVector(cgPoint: bottomRight)
-                ])
-            
-            textImage = UIImage(cgImage: detectorContext!.createCGImage(corrected, from: corrected.extent)!)
-            
-            image = overlay.compositingOverImage(image)
-
-            break
-        }
+        // adjust region
+        topLeft.x -= 10
+        topLeft.y += 10
+        topRight.x += 10
+        topRight.y += 10
+        bottomLeft.x -= 10
+        bottomLeft.y -= 10
+        bottomRight.x += 10
+        bottomRight.y -= 10
+        
+        let corrected = image.applyingFilter("CIPerspectiveCorrection", withInputParameters: [
+            "inputImage": image,
+            "inputTopLeft": CIVector(cgPoint: topLeft),
+            "inputTopRight": CIVector(cgPoint: topRight),
+            "inputBottomLeft": CIVector(cgPoint: bottomLeft),
+            "inputBottomRight": CIVector(cgPoint: bottomRight)
+            ])
+        
+        textImage = UIImage(cgImage: detectorContext!.createCGImage(corrected, from: corrected.extent)!)
         
         if textImage != nil {
             DispatchQueue.main.async {
@@ -325,7 +271,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
                 try! realm.write {
                     realm.add(url)
                 }
-
+                
                 DispatchQueue.main.async {
                     self.captureImage?.image = self.textImage
                     self.captureButton?.isEnabled = true
@@ -334,15 +280,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
                 
                 self.showMessage("Detected: \(text)")
             }
-
-            sessionManager?.filter = passthrough
         }
-
-        return image
-    }
-    
-    func filter(for captureSessionManager: CaptureSessionManager) -> ((CIImage) -> CIImage?)? {
-        return passthrough
     }
     
     func orientation(for captureSessionManager: CaptureSessionManager) -> AVCaptureVideoOrientation {

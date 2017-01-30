@@ -18,6 +18,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     @IBOutlet var errorLabel: UILabel?
     @IBOutlet var errorButton: UIButton?
     @IBOutlet var previewView: UIView?
+    @IBOutlet var historyView: UIView?
     @IBOutlet var toolBar: UIToolbar?
     @IBOutlet var leftBarItem: UIBarButtonItem?
     @IBOutlet var statusLabel: UILabel?
@@ -42,6 +43,19 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     let realm = try! Realm()
     let history = try! Realm().objects(DetectedURL.self).sorted(byProperty: "date", ascending: false)
     var notificationToken: NotificationToken?
+    
+    var isStatusBarHidden = false
+    override var prefersStatusBarHidden: Bool {
+        get {
+            return isStatusBarHidden
+        }
+    }
+    
+    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        get {
+            return .slide
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -130,7 +144,8 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         }
     }
     
-    // TODO -- Remove this
+    // Mark: - Actions
+
     @IBAction func capture() {
         showMessage("Reading text...")
         shouldReadText = true
@@ -141,21 +156,6 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         showMessage("Detecting text, release to read")
     }
     
-    func showMessage(_ message: String) {
-        DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.4,
-                           animations: {
-                            self.statusLabel?.alpha = 0
-            },
-                           completion: {_ in
-                            self.statusLabel?.text = message
-                            UIView.animate(withDuration: 0.2, animations: {
-                                self.statusLabel?.alpha = 1
-                            })
-            })
-        }
-    }
-    
     @IBAction func openSettings() {
         guard let settingsURL = URL(string: UIApplicationOpenSettingsURLString) else {
             return
@@ -164,6 +164,36 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
             UIApplication.shared.open(settingsURL)
         }
     }
+    
+    @IBAction func share() {
+        showMessage("Select item to share")
+        hidePreviewView()
+        if let historyController = childViewControllers.first(where: { return $0 is HistoryTableViewController }) as? HistoryTableViewController {
+            historyController.isShareModeActive = true
+        }
+        if var items = toolBar?.items, let itemIndex = items.index(of: leftBarItem!) {
+            leftBarItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(finishShare))
+            items[itemIndex] = leftBarItem!
+            
+            toolBar?.setItems(items, animated: true)
+        }
+    }
+    
+    @IBAction func finishShare() {
+        showMessage("Tap and hold to detect text, release to analyze")
+        showPreviewView()
+        if let historyController = childViewControllers.first(where: { return $0 is HistoryTableViewController }) as? HistoryTableViewController {
+            historyController.isShareModeActive = false
+        }
+        if var items = toolBar?.items, let itemIndex = items.index(of: leftBarItem!) {
+            leftBarItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share))
+            items[itemIndex] = leftBarItem!
+            
+            toolBar?.setItems(items, animated: true)
+        }
+    
+    }
+
     
     // Mark: - Camera
     
@@ -313,13 +343,82 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     }
     
     // Mark: - Helpers
-    
-    @IBAction func testMessage() {
-        if statusLabel?.text != "halo" {
-            showMessage("halo")
-        } else {
-            showMessage("This is fairly long... but not too long though")
+
+    func showMessage(_ message: String) {
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.4,
+                           animations: {
+                            self.statusLabel?.alpha = 0
+            },
+                           completion: {_ in
+                            self.statusLabel?.text = message
+                            UIView.animate(withDuration: 0.2, animations: {
+                                self.statusLabel?.alpha = 1
+                            })
+            })
         }
+    }
+    
+    func hidePreviewView() {
+        let newConstraint = NSLayoutConstraint(item: self.historyView!,
+                                               attribute: .top,
+                                               relatedBy: .equal,
+                                               toItem: self.view,
+                                               attribute: .top,
+                                               multiplier: 1,
+                                               constant: 0)
+        newConstraint.identifier = "historyView_top"
+        
+        self.view.constraints.first(where: { return $0.identifier == "historyView_top" })?.isActive = false
+        newConstraint.isActive = true
+        
+        if let buttonConstraint = self.view.constraints.first(where: { return $0.identifier == "captureButton_trailing" }) {
+            buttonConstraint.constant += (buttonConstraint.firstItem as! UIButton).frame.width + (buttonConstraint.constant * -2)
+        }
+        
+        isStatusBarHidden = true
+        
+        UIView.animate(withDuration: 0.6,
+                       delay: 0,
+                       usingSpringWithDamping: 0.5,
+                       initialSpringVelocity: 0,
+                       options: [],
+                       animations: {
+                        self.view.layoutIfNeeded()
+                        self.setNeedsStatusBarAppearanceUpdate()
+        },
+                       completion: nil)
+    }
+    
+    func showPreviewView() {
+        let newConstraint = NSLayoutConstraint(item: self.historyView!,
+                                               attribute: .top,
+                                               relatedBy: .equal,
+                                               toItem: self.previewView,
+                                               attribute: .bottom,
+                                               multiplier: 1,
+                                               constant: 0)
+        newConstraint.identifier = "historyView_top"
+        
+        self.view.constraints.first(where: { return $0.identifier == "historyView_top" })?.isActive = false
+        newConstraint.isActive = true
+        
+        if let buttonConstraint = self.view.constraints.first(where: { return $0.identifier == "captureButton_trailing" }) {
+            buttonConstraint.constant = (buttonConstraint.constant - (buttonConstraint.firstItem as! UIButton).frame.width) * -1
+        }
+        
+        isStatusBarHidden = false
+        
+        UIView.animate(withDuration: 0.6,
+                       delay: 0,
+                       usingSpringWithDamping: 0.5,
+                       initialSpringVelocity: 0,
+                       options: [],
+                       animations: {
+                        self.view.layoutIfNeeded()
+                        self.setNeedsStatusBarAppearanceUpdate()
+        },
+                       completion: nil)
     }
 }
 

@@ -98,7 +98,7 @@
                                 <items>
                                     <barButtonItem systemItem="action" id="kih-Ia-p2M">
                                         <connections>
-                                            <action selector="testMessage" destination="hFk-Qx-OFg" id="BcL-SK-qYD"/>
+                                            <action selector="share" destination="hFk-Qx-OFg" id="4ZI-i4-iHd"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="bEE-vk-03G"/>
@@ -137,23 +137,23 @@
                             <constraint firstItem="EdP-df-VkP" firstAttribute="leading" secondItem="ZpK-Eb-thJ" secondAttribute="leading" id="B7H-Sv-ffI"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="height" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="CND-6a-MHe"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="leading" secondItem="ZpK-Eb-thJ" secondAttribute="leading" id="DhR-LX-SzM"/>
-                            <constraint firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="GPj-Bg-I39"/>
+                            <constraint firstItem="sF9-BO-Czd" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" identifier="historyView_top" id="G4A-rp-WTT"/>
+                            <constraint firstItem="ZpK-Eb-thJ" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="GPj-Bg-I39"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="top" secondItem="zmi-r3-Fi7" secondAttribute="top" id="Gpu-hn-5D7"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="top" id="MAs-7O-Ptc"/>
                             <constraint firstItem="sF9-BO-Czd" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="PHa-xz-LZS"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="Pdy-rS-ZAT"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="bottom" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="ZIf-wR-cef"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="centerX" secondItem="zmi-r3-Fi7" secondAttribute="centerX" id="dJi-tA-lqh"/>
-                            <constraint firstAttribute="trailing" secondItem="zUS-gd-bX5" secondAttribute="trailing" constant="20" id="dp9-As-iSe"/>
+                            <constraint firstItem="zUS-gd-bX5" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" constant="-20" identifier="captureButton_trailing" id="dp9-As-iSe"/>
                             <constraint firstItem="EdP-df-VkP" firstAttribute="bottom" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="hQk-Mo-opH"/>
                             <constraint firstItem="EdP-df-VkP" firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="oyJ-Vk-ZNS"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="height" relation="lessThanOrEqual" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="qwE-ZK-C8F"/>
                             <constraint firstItem="fLT-Js-ioH" firstAttribute="width" secondItem="zmi-r3-Fi7" secondAttribute="width" id="sab-DB-IDh"/>
                             <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="fLT-Js-ioH" secondAttribute="bottom" id="uGo-m5-ABh"/>
-                            <constraint firstAttribute="trailing" secondItem="sF9-BO-Czd" secondAttribute="trailing" id="uOZ-1R-WaI"/>
+                            <constraint firstItem="sF9-BO-Czd" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="uOZ-1R-WaI"/>
                             <constraint firstItem="1bE-VV-JcD" firstAttribute="top" secondItem="zUS-gd-bX5" secondAttribute="bottom" constant="10" id="y0L-en-p0D"/>
-                            <constraint firstAttribute="trailing" secondItem="1bE-VV-JcD" secondAttribute="trailing" id="yD4-fZ-jhb"/>
-                            <constraint firstItem="sF9-BO-Czd" firstAttribute="top" secondItem="nQz-gW-h1y" secondAttribute="bottom" id="zhB-5v-AFF"/>
+                            <constraint firstItem="1bE-VV-JcD" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="yD4-fZ-jhb"/>
                         </constraints>
                     </view>
                     <connections>
@@ -162,6 +162,7 @@
                         <outlet property="errorButton" destination="YDo-nn-fAy" id="mXP-XK-SPv"/>
                         <outlet property="errorLabel" destination="6Tl-pw-0ZT" id="lbK-HV-QMF"/>
                         <outlet property="errorView" destination="nQz-gW-h1y" id="L56-Ao-xZK"/>
+                        <outlet property="historyView" destination="sF9-BO-Czd" id="Lsf-ZX-0KY"/>
                         <outlet property="leftBarItem" destination="kih-Ia-p2M" id="m8H-Jw-WLT"/>
                         <outlet property="previewView" destination="ZpK-Eb-thJ" id="IdC-sh-cEl"/>
                         <outlet property="rightBarItem" destination="GAI-2Z-ix3" id="7wy-Ee-q1z"/>
@@ -177,19 +178,19 @@
         <scene sceneID="Mxo-Tk-vMX">
             <objects>
                 <tableViewController id="xMO-GR-HYe" customClass="HistoryTableViewController" customModule="Url_to_Text" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="onDrag" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="54" sectionHeaderHeight="28" sectionFooterHeight="28" id="wQc-2M-yOy">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="onDrag" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="54" sectionHeaderHeight="28" sectionFooterHeight="28" id="wQc-2M-yOy">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="488"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="history_cell" id="eWf-HE-bDe" customClass="HistoryTableViewCell" customModule="Url_to_Text" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="history_cell" id="eWf-HE-bDe" customClass="HistoryTableViewCell" customModule="Url_to_Text" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="320" height="54"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eWf-HE-bDe" id="KMy-Mk-UbL">
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="53"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="http://tamerwahba.me/is-so-cool" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="n62-y7-a6E" userLabel="Detected Text">
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="http://tamerwahba.me/is-so-cool" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="n62-y7-a6E" userLabel="Detected Text">
                                             <rect key="frame" x="8" y="11" width="312" height="21"/>
                                             <nil key="textColor"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>

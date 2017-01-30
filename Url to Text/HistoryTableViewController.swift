@@ -16,6 +16,8 @@ class HistoryTableViewController: UITableViewController {
     let history = try! Realm().objects(DetectedURL.self).sorted(byProperty: "date", ascending: false)
     var notificationToken: NotificationToken?
 
+    var isShareModeActive = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -73,14 +75,34 @@ class HistoryTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        UIView.animate(withDuration: 0.2, animations: {
-            for cell in tableView.visibleCells.filter({ return ($0 as! HistoryTableViewCell).index != indexPath }) {
-                cell.contentView.alpha = 0.2
+        if isShareModeActive {
+            let activityController = UIActivityViewController(activityItems: [history[indexPath.row].userEdits.last!.value], applicationActivities: nil)
+            self.present(activityController,
+                         animated: true,
+                         completion: nil
+            )
+            if let parent = self.parent as? ViewController {
+                parent.finishShare()
             }
-        })
+        } else {
+            if let cell = tableView.cellForRow(at: indexPath) as? HistoryTableViewCell {
+                cell.textField?.isEnabled = true
+                cell.textField?.becomeFirstResponder()
+            }
+
+            UIView.animate(withDuration: 0.2, animations: {
+                for cell in tableView.visibleCells.filter({ return ($0 as! HistoryTableViewCell).index != indexPath }) {
+                    cell.contentView.alpha = 0.2
+                }
+            })
+        }
     }
     
     override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if let cell = tableView.cellForRow(at: indexPath) as? HistoryTableViewCell {
+            cell.textField?.isEnabled = false
+        }
+
         UIView.animate(withDuration: 0.2, animations: {
             for cell in tableView.visibleCells {
                 cell.contentView.alpha = 1

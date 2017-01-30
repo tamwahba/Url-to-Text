@@ -24,19 +24,14 @@ class HistoryTableViewCell: UITableViewCell, UITextFieldDelegate {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
     
     override func prepareForReuse() {
+        self.textField?.isEnabled = false
         self.contentView.alpha = 1
     }
     
     // Mark: - UITextFieldDelegate
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        tableView?.delegate?.tableView!(tableView!, didSelectRowAt: index!)
-    }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()

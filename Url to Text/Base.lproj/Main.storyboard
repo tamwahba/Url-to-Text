@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="hFk-Qx-OFg">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="hFk-Qx-OFg">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -78,9 +78,6 @@
                                     <segue destination="xMO-GR-HYe" kind="embed" id="xRW-ZA-BlZ"/>
                                 </connections>
                             </containerView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fLT-Js-ioH">
-                                <rect key="frame" x="0.0" y="454.5" width="320" height="113.5"/>
-                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zUS-gd-bX5">
                                 <rect key="frame" x="225" y="439" width="75" height="75"/>
                                 <state key="normal" image="capture_button"/>
@@ -104,7 +101,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="bEE-vk-03G"/>
                                     <barButtonItem style="plain" id="3aY-MO-tvU">
                                         <view key="customView" contentMode="scaleToFill" id="IKM-6B-V08">
-                                            <rect key="frame" x="73" y="6" width="174" height="33"/>
+                                            <rect key="frame" x="73" y="5.5" width="174" height="33"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap and hold to detect text, release to analyze" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OOS-Sc-xNU">
@@ -135,7 +132,6 @@
                             <constraint firstItem="1bE-VV-JcD" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="6Js-ui-LpU"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="AJf-2R-OCo"/>
                             <constraint firstItem="EdP-df-VkP" firstAttribute="leading" secondItem="ZpK-Eb-thJ" secondAttribute="leading" id="B7H-Sv-ffI"/>
-                            <constraint firstItem="fLT-Js-ioH" firstAttribute="height" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="CND-6a-MHe"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="leading" secondItem="ZpK-Eb-thJ" secondAttribute="leading" id="DhR-LX-SzM"/>
                             <constraint firstItem="sF9-BO-Czd" firstAttribute="top" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" identifier="historyView_top" id="G4A-rp-WTT"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="GPj-Bg-I39"/>
@@ -144,13 +140,10 @@
                             <constraint firstItem="sF9-BO-Czd" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="PHa-xz-LZS"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="leading" secondItem="zmi-r3-Fi7" secondAttribute="leading" id="Pdy-rS-ZAT"/>
                             <constraint firstItem="nQz-gW-h1y" firstAttribute="bottom" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="ZIf-wR-cef"/>
-                            <constraint firstItem="fLT-Js-ioH" firstAttribute="centerX" secondItem="zmi-r3-Fi7" secondAttribute="centerX" id="dJi-tA-lqh"/>
                             <constraint firstItem="zUS-gd-bX5" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" constant="-20" identifier="captureButton_trailing" id="dp9-As-iSe"/>
                             <constraint firstItem="EdP-df-VkP" firstAttribute="bottom" secondItem="ZpK-Eb-thJ" secondAttribute="bottom" id="hQk-Mo-opH"/>
                             <constraint firstItem="EdP-df-VkP" firstAttribute="trailing" secondItem="ZpK-Eb-thJ" secondAttribute="trailing" id="oyJ-Vk-ZNS"/>
                             <constraint firstItem="ZpK-Eb-thJ" firstAttribute="height" relation="lessThanOrEqual" secondItem="zmi-r3-Fi7" secondAttribute="height" multiplier="0.2" id="qwE-ZK-C8F"/>
-                            <constraint firstItem="fLT-Js-ioH" firstAttribute="width" secondItem="zmi-r3-Fi7" secondAttribute="width" id="sab-DB-IDh"/>
-                            <constraint firstItem="Tv8-Cm-0iL" firstAttribute="top" secondItem="fLT-Js-ioH" secondAttribute="bottom" id="uGo-m5-ABh"/>
                             <constraint firstItem="sF9-BO-Czd" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="uOZ-1R-WaI"/>
                             <constraint firstItem="1bE-VV-JcD" firstAttribute="top" secondItem="zUS-gd-bX5" secondAttribute="bottom" constant="10" id="y0L-en-p0D"/>
                             <constraint firstItem="1bE-VV-JcD" firstAttribute="trailing" secondItem="zmi-r3-Fi7" secondAttribute="trailing" id="yD4-fZ-jhb"/>
@@ -158,7 +151,6 @@
                     </view>
                     <connections>
                         <outlet property="captureButton" destination="zUS-gd-bX5" id="zqY-7B-bdF"/>
-                        <outlet property="captureImage" destination="fLT-Js-ioH" id="p4j-k3-k8u"/>
                         <outlet property="errorButton" destination="YDo-nn-fAy" id="mXP-XK-SPv"/>
                         <outlet property="errorLabel" destination="6Tl-pw-0ZT" id="lbK-HV-QMF"/>
                         <outlet property="errorView" destination="nQz-gW-h1y" id="L56-Ao-xZK"/>
@@ -187,7 +179,7 @@
                                 <rect key="frame" x="0.0" y="28" width="320" height="54"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eWf-HE-bDe" id="KMy-Mk-UbL">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="53"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="http://tamerwahba.me/is-so-cool" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="n62-y7-a6E" userLabel="Detected Text">
@@ -236,4 +228,5 @@
         <image name="capture_button" width="75" height="75"/>
         <image name="capture_button_pressed" width="75" height="75"/>
     </resources>
+    <color key="tintColor" red="0.16078431372549018" green="0.6705882352941176" blue="0.88627450980392153" alpha="1" colorSpace="deviceRGB"/>
 </document>

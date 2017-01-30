@@ -25,8 +25,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     @IBOutlet var rightBarItem: UIBarButtonItem?
     
     @IBOutlet var captureButton: UIButton?
-    @IBOutlet var captureImage: UIImageView?
-        
+    
     let tesseract = G8Tesseract(language: "eng",
                                 configDictionary: nil,
                                 configFileNames: ["\(Bundle.main.resourcePath!)/tessdata/configs/config"],
@@ -303,7 +302,6 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
                 }
                 
                 DispatchQueue.main.async {
-                    self.captureImage?.image = self.textImage
                     self.captureButton?.isEnabled = true
                     self.textImage = nil
                 }

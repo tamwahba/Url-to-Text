@@ -124,11 +124,6 @@ class HistoryTableViewController: UITableViewController {
                                     }
             }),
             UITableViewRowAction(style: .normal,
-                                 title: "Append",
-                                 handler: {action, index in
-                                    print("\(action) pressed on \(index)")
-            }),
-            UITableViewRowAction(style: .normal,
                                  title: "Copy",
                                  handler: {action, index in
                                     self.tableView.isEditing = false

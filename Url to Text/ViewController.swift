@@ -192,7 +192,6 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         }
     
     }
-
     
     // Mark: - Camera
     

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		3015C8CA1DC43CEA00DA8A65 /* CaptureSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3015C8C91DC43CEA00DA8A65 /* CaptureSessionManager.swift */; };
+		301693121E3FE0EB00AFE871 /* SettingsPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301693111E3FE0EB00AFE871 /* SettingsPageViewController.swift */; };
+		301693141E3FE49000AFE871 /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301693131E3FE49000AFE871 /* SettingsTableViewController.swift */; };
 		3017C5431DA8537000F605CA /* tessdata in Resources */ = {isa = PBXBuildFile; fileRef = 3017C5421DA8537000F605CA /* tessdata */; };
 		301BE9D71DF38063009753A3 /* DetectedURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301BE9D61DF38063009753A3 /* DetectedURL.swift */; };
 		301BE9D91DF3DA97009753A3 /* HistoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301BE9D81DF3DA97009753A3 /* HistoryTableViewCell.swift */; };
@@ -47,6 +49,8 @@
 		13A9EBCBEF90CB14D09C119D /* Pods-Url to Text.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to Text.release.xcconfig"; path = "Pods/Target Support Files/Pods-Url to Text/Pods-Url to Text.release.xcconfig"; sourceTree = "<group>"; };
 		2054BA11E0C2B38DDBE4059A /* Pods-Url to TextTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Url to TextTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Url to TextTests/Pods-Url to TextTests.release.xcconfig"; sourceTree = "<group>"; };
 		3015C8C91DC43CEA00DA8A65 /* CaptureSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureSessionManager.swift; sourceTree = "<group>"; };
+		301693111E3FE0EB00AFE871 /* SettingsPageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPageViewController.swift; sourceTree = "<group>"; };
+		301693131E3FE49000AFE871 /* SettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		3017C5401DA74CB500F605CA /* TesseractOCR.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TesseractOCR.framework; path = "Pods/../build/Debug-iphoneos/TesseractOCRiOS/TesseractOCR.framework"; sourceTree = "<group>"; };
 		3017C5421DA8537000F605CA /* tessdata */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tessdata; sourceTree = "<group>"; };
 		301BE9D61DF38063009753A3 /* DetectedURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetectedURL.swift; sourceTree = "<group>"; };
@@ -147,6 +151,8 @@
 				305C9BE71D9DA73D00F4C1DF /* ViewController.swift */,
 				3015C8C91DC43CEA00DA8A65 /* CaptureSessionManager.swift */,
 				3090CA8D1E340D820095F3E3 /* HistoryTableViewController.swift */,
+				301693111E3FE0EB00AFE871 /* SettingsPageViewController.swift */,
+				301693131E3FE49000AFE871 /* SettingsTableViewController.swift */,
 				305C9BE91D9DA73D00F4C1DF /* Main.storyboard */,
 				305C9BEF1D9DA73D00F4C1DF /* Assets.xcassets */,
 				305C9BF11D9DA73D00F4C1DF /* LaunchScreen.storyboard */,
@@ -489,9 +495,11 @@
 				301BE9D71DF38063009753A3 /* DetectedURL.swift in Sources */,
 				305C9BE81D9DA73D00F4C1DF /* ViewController.swift in Sources */,
 				3015C8CA1DC43CEA00DA8A65 /* CaptureSessionManager.swift in Sources */,
+				301693121E3FE0EB00AFE871 /* SettingsPageViewController.swift in Sources */,
 				3090CA8E1E340D820095F3E3 /* HistoryTableViewController.swift in Sources */,
 				305C9BEE1D9DA73D00F4C1DF /* Url_to_Text.xcdatamodeld in Sources */,
 				305C9BE61D9DA73D00F4C1DF /* AppDelegate.swift in Sources */,
+				301693141E3FE49000AFE871 /* SettingsTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -39,7 +39,7 @@
                                 <items>
                                     <barButtonItem systemItem="action" id="8oo-De-vwA"/>
                                     <barButtonItem systemItem="flexibleSpace" id="zFd-V9-0lO"/>
-                                    <barButtonItem systemItem="edit" id="KHM-u2-WO9"/>
+                                    <barButtonItem image="gear" id="KHM-u2-WO9"/>
                                 </items>
                             </toolbar>
                         </subviews>
@@ -64,4 +64,8 @@
             <point key="canvasLocation" x="52" y="374.66266866566718"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="gear" width="22" height="22"/>
+    </resources>
+    <color key="tintColor" red="0.16078431369999999" green="0.6705882353" blue="0.8862745098" alpha="1" colorSpace="deviceRGB"/>
 </document>

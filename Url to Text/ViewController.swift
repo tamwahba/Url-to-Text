@@ -294,19 +294,22 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
                 
                 let text = self.tesseract!.recognizedText.replacingOccurrences(of: "\n", with: "")
                 
-                print("recognized: \(text)")
-                let url = DetectedURL(text)
-                let realm = try! Realm()
-                try! realm.write {
-                    realm.add(url)
+                if text.characters.count > 0 {
+                    let url = DetectedURL(text)
+                    let realm = try! Realm()
+                    try! realm.write {
+                        realm.add(url)
+                    }
+                    
+                    self.showMessage("Detected: \(text)")
+                } else {
+                    self.showMessage("Couldn't read anything")
                 }
                 
                 DispatchQueue.main.async {
                     self.captureButton?.isEnabled = true
                     self.textImage = nil
                 }
-                
-                self.showMessage("Detected: \(text)")
             }
         }
     }

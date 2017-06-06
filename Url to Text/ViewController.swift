@@ -25,6 +25,8 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     @IBOutlet var rightBarItem: UIBarButtonItem?
     
     @IBOutlet var captureButton: UIButton?
+
+    var overlay: UIView?
     
     let tesseract = G8Tesseract(language: "eng",
                                 configDictionary: nil,
@@ -67,6 +69,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         super.viewWillAppear(animated)
         
         errorView?.isHidden = true
+        
         DispatchQueue.global().async {
             self.verifyCameraAccess()
         }
@@ -143,16 +146,114 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         }
     }
     
+    func onboarding1() {
+        addOverlay(top: view.topAnchor)
+        
+        let instructions = UILabel()
+        instructions.translatesAutoresizingMaskIntoConstraints = false
+
+        instructions.font = instructions.font.withSize(22.0)
+        instructions.text = "press and hold this button"
+        instructions.textAlignment = .center
+        instructions.textColor = UIColor.white
+        instructions.numberOfLines = 3
+        
+        let arrow = UIImageView(image: UIImage(named: "arrow_right"))
+        arrow.translatesAutoresizingMaskIntoConstraints = false
+        
+        let constraints = [
+            arrow.widthAnchor.constraint(equalTo: arrow.heightAnchor),
+            arrow.trailingAnchor.constraint(equalTo: captureButton!.leadingAnchor),
+            arrow.bottomAnchor.constraint(equalTo: captureButton!.bottomAnchor),
+            arrow.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.5),
+            instructions.bottomAnchor.constraint(equalTo: arrow.topAnchor),
+            instructions.centerXAnchor.constraint(equalTo: arrow.leadingAnchor),
+            instructions.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor),
+            instructions.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
+            ]
+        
+        DispatchQueue.main.async {
+            self.overlay!.addSubview(arrow)
+            self.overlay!.addSubview(instructions)
+            
+            self.view.addConstraints(constraints)
+        }
+    }
+
+    func onboarding2() {
+        addOverlay(top: previewView!.bottomAnchor)
+        
+        let instructions = UILabel()
+        instructions.translatesAutoresizingMaskIntoConstraints = false
+        
+        instructions.font = instructions.font.withSize(22.0)
+        instructions.text = "release when you see a box around the URL"
+        instructions.textAlignment = .center
+        instructions.textColor = UIColor.white
+        instructions.numberOfLines = 3
+        
+        let arrow = UIImageView(image: UIImage(named: "arrow_top"))
+        arrow.translatesAutoresizingMaskIntoConstraints = false
+        
+        let constraints = [
+            arrow.widthAnchor.constraint(equalTo: arrow.heightAnchor),
+            arrow.trailingAnchor.constraint(equalTo: previewView!.trailingAnchor),
+            arrow.topAnchor.constraint(equalTo: previewView!.bottomAnchor),
+            arrow.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.5),
+            instructions.topAnchor.constraint(equalTo: arrow.bottomAnchor),
+            instructions.centerXAnchor.constraint(equalTo: arrow.leadingAnchor),
+            instructions.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor),
+            instructions.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
+            ]
+        
+        DispatchQueue.main.async {
+            self.overlay!.addSubview(arrow)
+            self.overlay!.addSubview(instructions)
+            
+            self.view.addConstraints(constraints)
+        }
+    }
+    
+    func addOverlay(top: NSLayoutYAxisAnchor) {
+        let overlay = UIView()
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        overlay.translatesAutoresizingMaskIntoConstraints = false
+
+        let constraints = [
+            overlay.topAnchor.constraint(equalTo: top),
+            overlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            overlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            overlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            ]
+        
+        self.overlay = overlay
+        
+        DispatchQueue.main.async {
+            self.view.bringSubview(toFront: self.captureButton!)
+            self.view.insertSubview(overlay, belowSubview: self.captureButton!)
+            self.view.addConstraints(constraints)
+        }
+    }
+    
     // Mark: - Actions
 
     @IBAction func capture() {
-        showMessage("Reading text...")
         shouldReadText = true
+        showMessage("Reading text...")
+
+        if (overlay != nil) {
+            overlay!.removeFromSuperview()
+        }
     }
     
     @IBAction func detect() {
-        sessionManager?.filterMode = .detect
         showMessage("Detecting text, release to read")
+        sessionManager?.filterMode = .detect
+
+        if (overlay != nil) {
+            overlay!.removeFromSuperview()
+            onboarding2()
+        }
     }
     
     @IBAction func openSettings() {
@@ -203,6 +304,9 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
                                           completionHandler: {
                                             granted in
                                             if granted {
+                                                UserDefaults.standard.set(true, forKey: "launched")
+
+                                                self.onboarding1()
                                                 self.initCamera()
                                             } else {
                                                 self.showAccessError()
@@ -216,11 +320,15 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
             fallthrough
         default:
             initCamera()
+            let launchedBefore = UserDefaults.standard.bool(forKey: "launched")
+            if !launchedBefore {
+                onboarding1()
+                UserDefaults.standard.set(true, forKey: "launched")
+            }
         }
     }
     
     func initCamera() {
-        
         sessionManager?.startFiltering()
         
         DispatchQueue.main.async {

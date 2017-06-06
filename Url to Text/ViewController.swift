@@ -215,22 +215,26 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
     }
     
     func addOverlay(top: NSLayoutYAxisAnchor) {
-        let overlay = UIView()
-        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-        overlay.translatesAutoresizingMaskIntoConstraints = false
+        if overlay == nil {
+            overlay = UIView()
+            overlay!.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+            overlay!.translatesAutoresizingMaskIntoConstraints = false
+        } else {
+            for subview in overlay!.subviews {
+                subview.removeFromSuperview()
+            }
+        }
 
         let constraints = [
-            overlay.topAnchor.constraint(equalTo: top),
-            overlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            overlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            overlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            overlay!.topAnchor.constraint(equalTo: top),
+            overlay!.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            overlay!.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            overlay!.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             ]
-        
-        self.overlay = overlay
         
         DispatchQueue.main.async {
             self.view.bringSubview(toFront: self.captureButton!)
-            self.view.insertSubview(overlay, belowSubview: self.captureButton!)
+            self.view.insertSubview(self.overlay!, belowSubview: self.captureButton!)
             self.view.addConstraints(constraints)
         }
     }
@@ -243,6 +247,7 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
 
         if (overlay != nil) {
             overlay!.removeFromSuperview()
+            overlay = nil
         }
     }
     
@@ -251,7 +256,9 @@ class ViewController : UIViewController, CaptureSessionManagerDelegate {
         sessionManager?.filterMode = .detect
 
         if (overlay != nil) {
-            overlay!.removeFromSuperview()
+            let constraints = view.constraints.filter({
+                return $0.firstItem as? UIView == overlay || $0.secondItem as? UIView == overlay })
+            view.removeConstraints(constraints)
             onboarding2()
         }
     }
